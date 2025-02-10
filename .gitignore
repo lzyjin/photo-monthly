@@ -42,5 +42,5 @@ yarn-error.log*
 next-env.d.ts
 
 .idea
-.db
-.db-journal
+*.db
+*.db-journal
