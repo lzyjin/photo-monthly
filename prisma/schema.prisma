@@ -17,26 +17,27 @@ model User {
   password   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  isDeleted  Boolean  @default(false)
+  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   calendarId Int
   Post       Post[]
 }
 
 model Photo {
   id     Int  @id @default(autoincrement())
-  post   Post @relation(fields: [postId], references: [id])
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 }
 
 model Post {
   id         Int      @id @default(autoincrement())
   photo      String
-  user       User     @relation(fields: [userId], references: [id])
-  userId     Int
   date       DateTime
   memo       String?
   Photo      Photo[]
-  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   calendarId Int
 }
 
