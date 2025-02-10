@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  password   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  calendarId Int
+  Post       Post[]
+}
+
+model Photo {
+  id     Int  @id @default(autoincrement())
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  photo      String
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  date       DateTime
+  memo       String?
+  Photo      Photo[]
+  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  calendarId Int
+}
+
+model Calendar {
+  id   Int    @id @default(autoincrement())
+  Post Post[]
+  User User[]
+}
+
+model Setting {
+  id          Int @id @default(autoincrement())
+  startOfWeek Int @default(1) // 1 = Monday, 7 = Sunday
+}
+
+// TypeScript에서 Enum 정의:
+// export enum StartOfWeek {
+//   MONDAY = 1,
+//   SUNDAY = 7,
+// }
+
+// 사용 예시:
+// const setting: { startOfWeek: StartOfWeek } = {
+// startOfWeek: StartOfWeek.MONDAY,
+// };
