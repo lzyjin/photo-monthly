@@ -10,19 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  name       String
-  password   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isDeleted  Boolean  @default(false)
-  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  calendarId Int
-  Post       Post[]
-}
-
 model Photo {
   id     Int  @id @default(autoincrement())
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -34,22 +21,36 @@ model Post {
   photo      String
   date       DateTime
   memo       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   Photo      Photo[]
-  user       User     @relation(fields: [userId], references: [id])
-  userId     Int
   calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   calendarId Int
 }
 
 model Calendar {
-  id   Int    @id @default(autoincrement())
-  Post Post[]
-  User User[]
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post[]
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
 }
 
 model Setting {
   id          Int @id @default(autoincrement())
   startOfWeek Int @default(1) // 1 = Monday, 7 = Sunday
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  isDeleted Boolean    @default(false)
+  Calendar  Calendar[]
 }
 
 // TypeScript에서 Enum 정의:

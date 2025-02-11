@@ -1,10 +1,18 @@
 import Link from "next/link";
+import {ArrowLeftIcon} from "@heroicons/react/24/solid";
 
-export default function NavigationBar() {
+interface NavigationBarProps {
+  goBackUrl: string;
+  pageTitle: string;
+}
+
+export default function NavigationBar({goBackUrl, pageTitle}: NavigationBarProps) {
   return (
-    <div className="relative flex justify-center items-center py-3 px-5 border-b border-gray-200">
-      <Link href={``} className="absolute left-5 top-auto bottom-auto">⬅️</Link>
-      <h1 className="font-bold">페이지 타이틀</h1>
+    <div className="fixed left-0 top-0 bg-white w-full flex justify-center items-center py-3 px-5 border-b border-gray-200 flex-shrink-0">
+      <Link href={goBackUrl} className="absolute left-5 top-auto bottom-auto">
+        <ArrowLeftIcon className="size-5" />
+      </Link>
+      <h1 className="font-bold">{pageTitle}</h1>
     </div>
   );
 }

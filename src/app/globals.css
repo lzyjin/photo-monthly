@@ -18,6 +18,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-weight: normal;
 }
 
 html,
@@ -29,4 +30,24 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+input,
+button {
+    outline: none;
+}
+
+
+@layer components {
+    .primary-btn {
+        @apply w-full py-2 block border border-blue-500 bg-blue-500 rounded-md text-white font-semibold;
+    }
+
+    .secondary-btn {
+        @apply w-full py-2 block border border-blue-500 rounded-md text-blue-500 font-semibold;
+    }
+
+    .default-btn {
+        @apply w-full py-2 block border border-black rounded-md text-black font-semibold;
+    }
 }

@@ -12,14 +12,14 @@ export default function Home() {
      </div>
      <div className="w-full flex flex-col justify-between items-center gap-5 text-center">
        <div className="w-full flex flex-col justify-between items-center gap-2">
-         <Link href={`/login`} className="w-full py-2 block border border-blue-500 bg-blue-500 rounded-md text-white font-semibold">로그인</Link>
-         <Link href={`/create-account`} className="w-full py-2 block border border-blue-500 rounded-md text-blue-500 font-semibold">회원가입</Link>
+         <Link href={`/login`} className="primary-btn">로그인</Link>
+         <Link href={`/create-account`} className="secondary-btn">회원가입</Link>
        </div>
        <div className="w-full flex justify-center items-center text-center relative">
          <div className="w-full h-[1px] bg-gray-300 absolute top-auto left-auto right-auto bottom-auto" />
          <span className="relative bg-white px-3">또는</span>
        </div>
-       <Link href={`/google/start`} className="w-full py-2 border border-black rounded-md text-black font-semibold flex justify-center items-center gap-2">
+       <Link href={`/google/start`} className="default-btn flex justify-center items-center gap-2">
          <Image src="/icon/google-logo.png" alt="구글 로고" width={20} height={20} />
          <span>Google로 계속하기</span>
        </Link>
