@@ -19,3 +19,13 @@ export async function sessionLogin(id: number) {
   session.id = id;
   await session.save();
 }
+
+export async function getLoggedInUserId() {
+  const session = await getSession();
+  return session.id;
+}
+
+export async function sessionLogout() {
+  const session = await getSession();
+  session.destroy();
+}
