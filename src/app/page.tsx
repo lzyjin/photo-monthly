@@ -20,7 +20,7 @@ export default function Home() {
          <span className="relative bg-white px-3 text-sm">또는</span>
        </div>
        <Link href={`/google/start`} className="btn flex justify-center items-center gap-2">
-         <Image src="/icon/google-logo.png" alt="구글 로고" width={20} height={20} />
+         <Image src="/icons/google-logo.png" alt="구글 로고" width={20} height={20} />
          <span>Google로 계속하기</span>
        </Link>
      </div>

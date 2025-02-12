@@ -2,7 +2,7 @@ import NavigationBar from "@/components/navigation-bar";
 import {db} from "@/lib/db";
 import {getLoggedInUserId} from "@/lib/session";
 import {notFound} from "next/navigation";
-import {logout} from "@/app/(setting)/profile/actions";
+import {deleteAccount, logout} from "@/app/(setting)/profile/actions";
 
 async function getUser(id: number) {
   const user = await db.user.findUnique({
@@ -38,6 +38,10 @@ export default async function Profile() {
         </div>
         <form action={logout}>
           <button>로그아웃</button>
+        </form>
+        <form action={deleteAccount}>
+          <button>회원 탈퇴</button>
+          {/*TODO: 회원탈퇴 정말 탈퇴하시겠습니까? 모달 필요*/}
         </form>
       </div>
     </div>

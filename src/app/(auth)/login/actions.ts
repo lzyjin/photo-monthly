@@ -5,12 +5,13 @@ import {db} from "@/lib/db";
 import bcrypt from "bcrypt";
 import {redirect} from "next/navigation";
 import {PASSWORD_MIN_LENGTH} from "@/lib/constants";
-import {getSession, sessionLogin} from "@/lib/session";
+import {sessionLogin} from "@/lib/session";
 
 async function checkUserExists(email: string) {
   const user = await db.user.findUnique({
     where: {
       email,
+      isDeleted: false,
     },
     select: {
       id: true,
