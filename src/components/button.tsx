@@ -10,6 +10,6 @@ export default function Button({text}: ButtonProps) {
   const status = useFormStatus();
 
   return (
-    <button className="primary-btn">{status.pending ? "진행중..." : text}</button>
+    <button className="btn">{status.pending ? "진행중..." : text}</button>
   );
 }

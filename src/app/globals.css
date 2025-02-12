@@ -4,7 +4,9 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  /*--foreground: #171717;*/
+  /*--foreground: #ff0000;*/
+  --foreground: #1fad00;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,15 +41,11 @@ button {
 
 
 @layer components {
+    .btn {
+        @apply font-jejugothic w-full py-4 text-sm block rounded-full border border-foreground text-foreground transition-colors hover:bg-foreground hover:text-white;
+    }
+
     .primary-btn {
-        @apply w-full py-2 block border border-blue-500 bg-blue-500 rounded-md text-white font-semibold;
-    }
-
-    .secondary-btn {
-        @apply w-full py-2 block border border-blue-500 rounded-md text-blue-500 font-semibold;
-    }
-
-    .default-btn {
-        @apply w-full py-2 block border border-black rounded-md text-black font-semibold;
+        @apply btn bg-[#ff0000] text-white;
     }
 }

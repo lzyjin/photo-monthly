@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        worksans: ["var(--font-work-sans)"],
+        jejugothic: ["var(--font-jeju-gothic)"],
+      }
     },
   },
   plugins: [],

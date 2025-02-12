@@ -1,10 +1,11 @@
 "use server";
 
 import {z} from "zod";
-import {NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_REGEX} from "@/lib/constants";
 import {db} from "@/lib/db";
 import bcrypt from "bcrypt";
 import {redirect} from "next/navigation";
+import {PASSWORD_MIN_LENGTH} from "@/lib/constants";
+import {getSession, sessionLogin} from "@/lib/session";
 
 async function checkUserExists(email: string) {
   const user = await db.user.findUnique({
@@ -13,6 +14,7 @@ async function checkUserExists(email: string) {
     },
     select: {
       id: true,
+      password: true,
     },
   });
 
@@ -20,10 +22,6 @@ async function checkUserExists(email: string) {
 }
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .max(NAME_MAX_LENGTH, `${NAME_MAX_LENGTH}자 이내로 입력해주세요`),
   email: z
     .string()
     .email("이메일 형식으로 입력해주세요")
@@ -32,17 +30,16 @@ const formSchema = z.object({
   password: z
     .string()
     .trim()
-    .min(PASSWORD_MIN_LENGTH, `${PASSWORD_MIN_LENGTH}자 이상 입력해주세요.`)
-    .regex(PASSWORD_REGEX, `영문 대소문자, 숫자, 특수문자를 포함해 ${PASSWORD_MIN_LENGTH}자 이상 입력해주세요.`)
+    .min(PASSWORD_MIN_LENGTH, `${PASSWORD_MIN_LENGTH}자 이상 입력해주세요.`),
   })
   .superRefine(async (val, ctx) => {
     const user = await checkUserExists(val.email);
 
-    if (user) {
+    if (!user) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["email"],
-        message: "이미 존재하는 이메일입니다.",
+        message: "존재하지 않는 이메일입니다. 회원가입 해주세요.",
         fatal: true,
       });
 
@@ -51,9 +48,8 @@ const formSchema = z.object({
 
   });
 
-export async function createAccount(prevState: unknown, formData: FormData) {
+export async function login(prevState: unknown, formData: FormData) {
   const data = {
-    name: formData.get("name") as string,
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
@@ -65,22 +61,28 @@ export async function createAccount(prevState: unknown, formData: FormData) {
       fieldErrors: result.error.flatten().fieldErrors,
       data,
     };
+
   } else {
-    const hashedPassword = await bcrypt.hash(result.data.password, 10);
+    const user = await checkUserExists(result.data.email);
 
-    await db.user.create({
-      data: {
-        name: result.data.name,
-        email: result.data.email,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-      },
-    });
+    if (!user) {
+      return;
+    }
 
-    redirect("/login");
+    const ok = await bcrypt.compare(result.data.password, user.password);
 
+    if (ok) {
+      await sessionLogin(user.id);
+      redirect("/calendar");
+
+    } else {
+      return {
+        fieldErrors: {
+          password: ["비밀번호가 다릅니다."],
+        },
+        data: result.data,
+      };
+
+    }
   }
-
 }
