@@ -39,6 +39,10 @@ button {
     outline: none;
 }
 
+.swiper,
+.swiper-slide {
+    height: 100%;
+}
 
 @layer components {
     .btn {

@@ -8,7 +8,7 @@ import {useActionState} from "react";
 import {PASSWORD_MIN_LENGTH} from "@/lib/constants";
 import {login} from "@/app/(auth)/login/actions";
 
-export default function Login() {
+export default function LoginPage() {
   const [state, action] = useActionState(login, null);
 
   return (

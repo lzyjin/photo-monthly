@@ -1,10 +1,11 @@
 import TabBar from "@/components/tab-bar";
+import Calendar from "@/components/calendar";
 
-export default function Calendar() {
+export default function CalendarPage() {
   return (
-    <div>
-      <div>캘린더 페이지</div>
-      <TabBar />
+    <div className="w-full h-full">
+      <Calendar />
+      <TabBar/>
     </div>
   );
 }

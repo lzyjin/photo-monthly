@@ -14,8 +14,6 @@ const publicUrls: PublicUrlsType = {
 };
 
 export async function middleware(request: NextRequest) {
-  console.log(request.nextUrl);
-
   const pathname = request.nextUrl.pathname;
   const isPublicUrls = publicUrls[pathname];
   const loggedInUserId = await getLoggedInUserId();

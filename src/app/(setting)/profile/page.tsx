@@ -14,7 +14,7 @@ async function getUser(id: number) {
   return user;
 }
 
-export default async function Profile() {
+export default async function ProfilePage() {
   const loggedInUserId = await getLoggedInUserId();
 
   if (!loggedInUserId) {

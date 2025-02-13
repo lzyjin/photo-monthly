@@ -8,7 +8,7 @@ export default function TabBar() {
   const pathname = usePathname();
 
   return (
-    <div className="fixed left-0 bottom-0 bg-white w-full border-t border-foreground flex-shrink-0 text-center
+    <div className="absolute left-0 bottom-0 bg-white w-full border-t border-foreground flex-shrink-0 text-center
     grid grid-cols-3 *:flex *:flex-col *:justify-center *:items-center *:gap-0.5 *:py-2.5">
       <Link href="/" className={pathname === "/calendar" ? "" : `opacity-50`}>
         <CalendarDaysIcon className="size-5"/>

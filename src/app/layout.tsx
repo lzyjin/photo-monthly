@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${workSans.variable} ${jejuGothic.variable}`}>
-      <body className={`font-worksans antialiased w-full h-full max-w-screen-sm mx-auto bg-white`}>
+      <body className={`font-worksans antialiased w-full h-full max-w-screen-sm max-h-screen mx-auto bg-white`}>
         {children}
       </body>
     </html>
