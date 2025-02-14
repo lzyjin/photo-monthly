@@ -51,7 +51,6 @@ export default function Calendar() {
     const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
     setDates(datesValue);
   }, [year, month]);
-  // }, []);
 
   const toPrevCal = () => {
     if (month !== 0) {
@@ -68,7 +67,6 @@ export default function Calendar() {
   const toNextCal = () => {
     if (month !== 11) {
       setMonth(month + 1);
-
     } else {
       setMonth(0);
       setYear(year + 1);
@@ -88,6 +86,10 @@ export default function Calendar() {
   };
 
   const changeMonth = (swiper: any) => {
+    if (!swiper.swipeDirection) {
+      return;
+    }
+
     if (swiper.swipeDirection === "prev") {
       toPrevCal();
     } else {
@@ -125,10 +127,7 @@ export default function Calendar() {
             spaceBetween={0}
             slidesPerView={1}
             initialSlide={Math.floor(slides.length / 2)}
-            // onSlideChange={(swiper) => changeMonth(swiper)}
-            // TODO: 터치만 해도 캘린더 넘어가는 것 수정 필요
             onTouchEnd={(swiper) => changeMonth(swiper)}
-            // onSwiper={(swiper) => console.log(swiper)}
           >
             {
               slides.map((slideContent, index) => (

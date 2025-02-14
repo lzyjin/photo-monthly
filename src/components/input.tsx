@@ -40,14 +40,16 @@ export default function Input({label, errors, defaultValue, name, type, ...rest}
           name={name}
           id={name}
           type={ name ==="password" ? (passwordVisible ? "text" : "password") : type}
-          className={`block w-full py-3 pl-3 text-sm placeholder:text-foreground placeholder:opacity-50 ${inputResetBtnVisible ? "pr-10" : "pr-3"}`}
+          className={`block w-full py-3 pl-3 text-sm placeholder:text-foreground placeholder:opacity-50 
+            ${inputResetBtnVisible && type !== "date" ? "pr-10" : "pr-3"}
+          `}
           defaultValue={defaultValue}
           ref={inputRef}
           onChange={onInputChange}
           autoComplete="off"
         />
         {
-          inputResetBtnVisible ?
+          inputResetBtnVisible && type !== "date" ?
           <XCircleIcon
             className="size-5 absolute right-3 top-1/2 -translate-y-1/2 text-foreground"
             onClick={onResetBtnClick}

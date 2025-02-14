@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${workSans.variable} ${jejuGothic.variable}`}>
-      <body className={`font-worksans antialiased w-full h-full max-w-screen-sm max-h-screen mx-auto bg-white`}>
+    <html lang="en" className={`${workSans.variable} ${jejuGothic.variable} `}>
+      <body className={`font-worksans antialiased w-full h-full max-w-screen-sm mx-auto max-h-screen  bg-white`}>
         {children}
       </body>
     </html>

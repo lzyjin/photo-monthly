@@ -44,6 +44,10 @@ button {
     height: 100%;
 }
 
+textarea {
+    resize: none;
+}
+
 @layer components {
     .btn {
         @apply font-jejugothic w-full py-4 text-sm block rounded-full border border-foreground text-foreground transition-colors hover:bg-foreground hover:text-white;
