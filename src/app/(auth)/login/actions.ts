@@ -74,7 +74,19 @@ export async function login(prevState: unknown, formData: FormData) {
 
     if (ok) {
       await sessionLogin(user.id);
-      redirect("/calendar");
+
+      const calendars = await db.calendar.findMany({
+        where: {
+          userId: user.id,
+          isDefault: true,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      // redirect(`/calendar/${calendars[0]}`);
+      redirect(`/calendar`);
 
     } else {
       return {

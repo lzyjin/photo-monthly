@@ -33,20 +33,24 @@ export async function addPost(prevState: unknown, formData: FormData) {
       data,
     };
   } else {
-    // console.log("기록 추가 성공 !!!")
+    console.log("기록 추가 성공 !!!")
     // const loggedInUserId = await getLoggedInUserId();
     // const user = await db.user.findUnique({
     //   where: {
     //     id: loggedInUserId,
     //   },
     //   select: {
-    //
+    //     Calendar: {
+    //       include: {
+    //         id: true,
+    //       }
+    //     }
     //   }
     // })
 
     // TODO: 유저 회원가입할 때 calendar 한개 무조건 생기게 추가해야함.
     // TODO: 그리고 기록 추가할 떄 캘린더 여러개인 유저는 캘린더 아이디 넘겨줘야함..
-    // 일단 지금은 1로 고정 ..
+
     await db.post.create({
       data: {
         date: result.data.date,

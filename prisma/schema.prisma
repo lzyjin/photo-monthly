@@ -30,11 +30,13 @@ model Post {
 
 model Calendar {
   id        Int      @id @default(autoincrement())
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Post      Post[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+  isDefault Boolean
 }
 
 model Setting {

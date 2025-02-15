@@ -5,6 +5,7 @@ import {NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_REGEX} from "@/lib/consta
 import {db} from "@/lib/db";
 import bcrypt from "bcrypt";
 import {redirect} from "next/navigation";
+import {getLoggedInUserId} from "@/lib/session";
 
 async function checkUserExists(email: string) {
   const user = await db.user.findUnique({
@@ -68,7 +69,7 @@ export async function createAccount(prevState: unknown, formData: FormData) {
   } else {
     const hashedPassword = await bcrypt.hash(result.data.password, 10);
 
-    await db.user.create({
+    const user = await db.user.create({
       data: {
         name: result.data.name,
         email: result.data.email,
@@ -78,6 +79,19 @@ export async function createAccount(prevState: unknown, formData: FormData) {
         id: true,
       },
     });
+
+    if (user) {
+      const calendar = await db.calendar.create({
+        data: {
+          userId: user.id,
+          name: "기본 캘린더",
+          isDefault: true,
+        },
+        select: {
+          id: true,
+        }
+      });
+    }
 
     redirect("/login");
 

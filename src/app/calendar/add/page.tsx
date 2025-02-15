@@ -51,11 +51,16 @@ export default function AddPostPage() {
       body: cloudflareForm,
     });
 
+    console.log("클라우드플레어 업로드 결과")
+    console.log(response)
+
     if (response.status !== 200) {
       return;
     }
 
-    const photoUrl = `${response.url}/${imageId}/public`;
+    const photoUrl = `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
+    console.log("🚨✅🥶process.env.CLOUDFLARE_IMAGE_DELIVERY_URL: ", process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL);
+    console.log("🚨✅🥶photoUrl: ", photoUrl);
     formData.set("photo", photoUrl);
 
     return addPost(prevState, formData);
@@ -70,6 +75,7 @@ export default function AddPostPage() {
       <div className="p-5 pt-10 flex-auto w-full">
         <Form action={action}>
           <div className="flex flex-col gap-4">
+            {/*<input type="hidden" name="calendarId" value={} />*/}
             <Input
               label="날짜"
               id="date"

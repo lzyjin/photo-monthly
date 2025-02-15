@@ -27,3 +27,9 @@ export async function sessionLogout() {
   const session = await getSession();
   session.destroy();
 }
+
+// export async function sessionSetDefaultCalendar(id: number) {
+//   const session = await getSession();
+//   session.defaultCalendarId = id;
+//   await session.save();
+// }

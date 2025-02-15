@@ -7,7 +7,14 @@ import 'swiper/css';
 import 'swiper/css/virtual';
 import {Virtual} from "swiper/modules";
 import {useEffect, useState} from "react";
-import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/solid";
+import {CalendarIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/solid";
+import {CalendarsProps, PostsProps} from "@/app/(tab)/calendar/page";
+import {notFound} from "next/navigation";
+
+interface CalendarProps {
+  calendars: CalendarsProps;
+  posts: PostsProps;
+}
 
 function generateDates(startDate: Date, endDate: Date) {
   const diff = Number(endDate) - Number(startDate);
@@ -40,12 +47,27 @@ function generateDates(startDate: Date, endDate: Date) {
   return dates;
 }
 
-export default function Calendar() {
+export default function Calendar({calendars, posts}: CalendarProps) {
+  const [activeCalendarId, setActiveCalendarId] = useState<number>();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [dates, setDates] = useState<number[]>([]);
   const slides = Array.from({ length: 100 }).map((el, index) => `Slide ${index + 1}`);
+
+  console.log(posts);
+
+  if (!calendars) {
+    notFound();
+  }
+
+  useEffect(() => {
+    calendars.map((calendar, i) => {
+      if (calendar.isDefault) {
+        setActiveCalendarId(calendar.id);
+      }
+    })
+  }, [calendars]);
 
   useEffect(() => {
     const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
@@ -109,11 +131,32 @@ export default function Calendar() {
             <ChevronRightIcon className="size-4"/>
           </button>
         </div>
-        <button className="font-semibold text-sm transition-colors py-1 px-1.5 rounded-full hover:bg-foreground hover:text-white" onClick={toTodayCal}>오늘</button>
+        <div className="flex items-center gap-2">
+          {/*<div className="relative">*/}
+          {/*  <button>*/}
+          {/*    <CalendarIcon className="size-4"/>*/}
+          {/*  </button>*/}
+          {/*  <ul className="absolute right-0 top-[100%] z-10 w-20 bg-white border border-foreground">*/}
+          {/*    {*/}
+          {/*      calendars && calendars.map((calendar, i) => (*/}
+          {/*        <li key={calendar.id}*/}
+          {/*          className={activeCalendarId === calendar.id ? "bg-foreground text-white" : ""}>*/}
+          {/*          {calendar.name}*/}
+          {/*        </li>*/}
+          {/*      ))*/}
+          {/*    }*/}
+          {/*  </ul>*/}
+          {/*</div>*/}
+          <button
+            className="font-semibold text-sm transition-colors py-1 px-1.5 rounded-full hover:bg-foreground hover:text-white"
+            onClick={toTodayCal}>오늘
+          </button>
+        </div>
       </div>
-      
+
       <div className="w-full h-full">
-        <div className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground *:flex *:justify-center *:items-center text-sm">
+        <div
+          className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground *:flex *:justify-center *:items-center text-sm">
           {
             ["월", "화", "수", "목", "금", "토", "일",].map((v, i) => (
               <CalendarDay day={v} key={i}/>
@@ -132,7 +175,7 @@ export default function Calendar() {
             {
               slides.map((slideContent, index) => (
                 <SwiperSlide key={slideContent} virtualIndex={index}>
-                  <CalendarMonth dates={dates} year={year} month={month} />
+                  <CalendarMonth dates={dates} year={year} month={month} posts={posts} />
                 </SwiperSlide>
               ))
             }
