@@ -55,8 +55,6 @@ export default function Calendar({calendars, posts}: CalendarProps) {
   const [dates, setDates] = useState<number[]>([]);
   const slides = Array.from({ length: 100 }).map((el, index) => `Slide ${index + 1}`);
 
-  console.log(posts);
-
   if (!calendars) {
     notFound();
   }
@@ -155,8 +153,7 @@ export default function Calendar({calendars, posts}: CalendarProps) {
       </div>
 
       <div className="w-full h-full">
-        <div
-          className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground *:flex *:justify-center *:items-center text-sm">
+        <div className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground *:flex *:justify-center *:items-center text-sm">
           {
             ["월", "화", "수", "목", "금", "토", "일",].map((v, i) => (
               <CalendarDay day={v} key={i}/>

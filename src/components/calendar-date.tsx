@@ -1,7 +1,10 @@
 import Image from "next/image";
+import {useEffect, useState} from "react";
 
 interface CalendarDateProps {
   date: number;
+  year: number;
+  month: number;
   isThisMonth: boolean;
   post?: {
     id: number;
@@ -14,45 +17,50 @@ interface CalendarDateProps {
   }
 }
 
-export default function CalendarDate({date, isThisMonth, post}: CalendarDateProps) {
+export default function CalendarDate({date, year, month, isThisMonth, post}: CalendarDateProps) {
   const today = new Date();
-  const todayDate = today.getDate();
+  const [isPostDateShown, setIsPostDateShown] = useState(false);
+  const [isToday, setIsToday] = useState(false);
 
-  console.log(post && post.date.getDate() === date);
+  useEffect(() => {
+    if (post && (post.date.getFullYear() === year &&
+      post.date.getMonth() === month &&
+      post.date.getDate() === date)) {
+      setIsPostDateShown(true);
+    } else {
+      setIsPostDateShown(false);
+    }
+  }, [year, month, date, post]);
+
+  useEffect(() => {
+    if (isThisMonth && date === today.getDate()) {
+      setIsToday(true);
+    } else {
+      setIsToday(false);
+    }
+  }, [year, month, date, isThisMonth]);
 
   return (
     <div className="h-28 border-b border-foreground">
       {
         date !== 0 ?
-
-
         <div className="relative w-full h-full overflow-hidden">
           {
-           post && post.date.getDate() === date && (
-             <Image src={`${post?.photo}/public`} alt={post?.date.toLocaleDateString() + "의 사진"} fill className="object-cover" />
-          )
+            isPostDateShown && (
+             <Image src={`${post?.photo}/smaller`} alt={post?.date.toLocaleDateString() + "의 사진"} fill className="object-cover" />
+            )
           }
           {
-            isThisMonth && date === todayDate ?
-
+            isToday ?
             <div className="relative w-full">
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 size-5 rounded-full bg-foreground" />
               <span className="text-white relative">{date}</span>
             </div> :
-
-            <span>{date}</span>
+            <span className="relative">{date}</span>
           }
         </div> :
-
-
-
         <div></div>
       }
     </div>
   );
 }
-
-// <div className="relative overflow-hidden">
-//   <Image src="https://picsum.photos/200/400" alt="dd" fill className="object-cover"/>
-//   <span className="relative">6</span>
-// </div>

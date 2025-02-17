@@ -8,11 +8,29 @@ import {PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
 import React, {ChangeEvent, useActionState, useEffect, useState} from "react";
 import {addPost, getUploadURL} from "@/app/calendar/add/actions";
 import Image from "next/image";
+import {getCalendars} from "@/app/(tab)/calendar/actions";
+import {notFound} from "next/navigation";
 
 export default function AddPostPage() {
   const [photoPath, setPhotoPath] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [imageId, setImageId] = useState("");
+  const [calendars, setCalendars] = useState<{
+    id: number,
+    name: string,
+    isDefault: boolean,
+  }[]>();
+
+  useEffect(() => {
+    (async () => {
+      const allCalendars = await getCalendars();
+      console.log(allCalendars);
+
+      if (allCalendars) {
+        setCalendars(allCalendars);
+      }
+    })();
+  }, []);
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -43,6 +61,10 @@ export default function AddPostPage() {
       return;
     }
 
+    if (file instanceof File && file.size === 0) {
+      return addPost(prevState, formData);
+    }
+
     const cloudflareForm = new FormData();
     cloudflareForm.set("file", file);
 
@@ -51,16 +73,11 @@ export default function AddPostPage() {
       body: cloudflareForm,
     });
 
-    console.log("클라우드플레어 업로드 결과")
-    console.log(response)
-
     if (response.status !== 200) {
       return;
     }
 
     const photoUrl = `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
-    console.log("🚨✅🥶process.env.CLOUDFLARE_IMAGE_DELIVERY_URL: ", process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL);
-    console.log("🚨✅🥶photoUrl: ", photoUrl);
     formData.set("photo", photoUrl);
 
     return addPost(prevState, formData);
@@ -75,7 +92,16 @@ export default function AddPostPage() {
       <div className="p-5 pt-10 flex-auto w-full">
         <Form action={action}>
           <div className="flex flex-col gap-4">
-            {/*<input type="hidden" name="calendarId" value={} />*/}
+            <div className="flex flex-col gap-3">
+              <label htmlFor="calendarId" className="text-sm">캘린더 선택</label>
+              <select name="calendarId" id="calendarId" className="border border-foreground block w-full p-3 text-sm">
+                {
+                  calendars && calendars.map((calendar) => (
+                    <option key={calendar.id} value={calendar.id}>{calendar.name}</option>
+                  ))
+                }
+              </select>
+            </div>
             <Input
               label="날짜"
               id="date"
@@ -95,8 +121,8 @@ export default function AddPostPage() {
                 name="photo"
                 className="absolute left-0 top-0 opacity-0 pointer-events-none"
                 onChange={onFileChange}
+                accept="image/*"
               />
-              {/*TODO: 사진 필수 처리 해야함*/}
               {
                 photoPath ?
                   <>
@@ -109,7 +135,10 @@ export default function AddPostPage() {
                     </div>
                   </> :
                   <>
-                    <PhotoIcon className="size-10"/>
+                    <div className="flex flex-col justify-center items-center gap-2">
+                      <PhotoIcon className="size-10"/>
+                      <span className="text-[#ff0000] text-xs">{state?.fieldErrors.photo}</span>
+                    </div>
                   </>
               }
             </label>

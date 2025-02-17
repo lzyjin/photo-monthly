@@ -30,7 +30,7 @@ model Post {
 
 model Calendar {
   id        Int      @id @default(autoincrement())
-  name      String   @unique
+  name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Post      Post[]

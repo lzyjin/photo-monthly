@@ -17,7 +17,8 @@ export default function CalendarMonth({dates, year, month, posts}: CalendarMonth
   const todayMonth = today.getMonth();
 
   useEffect(() => {
-    if (showingDate.getFullYear() === todayYear && showingDate.getMonth() === todayMonth) {
+    if (showingDate.getFullYear() === todayYear &&
+        showingDate.getMonth() === todayMonth) {
       setIsThisMonth(true);
     } else {
       setIsThisMonth(false);
@@ -33,6 +34,8 @@ export default function CalendarMonth({dates, year, month, posts}: CalendarMonth
             date={date}
             isThisMonth={isThisMonth}
             post={posts.find(p => p.date.getDate() === date)}
+            month={month}
+            year={year}
           />
         ))
       }

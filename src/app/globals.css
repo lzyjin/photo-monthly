@@ -35,7 +35,8 @@ body {
 }
 
 input,
-button {
+button,
+select {
     outline: none;
 }
 

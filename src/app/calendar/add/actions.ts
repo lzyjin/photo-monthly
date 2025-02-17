@@ -7,6 +7,9 @@ import {getLoggedInUserId} from "@/lib/session";
 import {redirect} from "next/navigation";
 
 const formSchema = z.object({
+  calendarId: z
+    .coerce
+    .number(),
   date: z
     .coerce
     .date(),
@@ -19,11 +22,23 @@ const formSchema = z.object({
 
 export async function addPost(prevState: unknown, formData: FormData) {
   const data = {
+    calendarId: formData.get("calendarId"),
     date: formData.get("date") as string,
-    photo: formData.get("photo") as string,
+    photo: formData.get("photo"),
     memo: formData.get("memo") as string,
   };
   console.log(data);
+
+  if (data.photo instanceof File) {
+    return {
+      fieldErrors: {
+        date: [],
+        photo: "사진은 필수 항목입니다.",
+        memo: [],
+      },
+      data,
+    };
+  }
 
   const result = await formSchema.safeParseAsync(data);
 
@@ -33,30 +48,12 @@ export async function addPost(prevState: unknown, formData: FormData) {
       data,
     };
   } else {
-    console.log("기록 추가 성공 !!!")
-    // const loggedInUserId = await getLoggedInUserId();
-    // const user = await db.user.findUnique({
-    //   where: {
-    //     id: loggedInUserId,
-    //   },
-    //   select: {
-    //     Calendar: {
-    //       include: {
-    //         id: true,
-    //       }
-    //     }
-    //   }
-    // })
-
-    // TODO: 유저 회원가입할 때 calendar 한개 무조건 생기게 추가해야함.
-    // TODO: 그리고 기록 추가할 떄 캘린더 여러개인 유저는 캘린더 아이디 넘겨줘야함..
-
     await db.post.create({
       data: {
+        calendarId: result.data.calendarId,
         date: result.data.date,
         photo: result.data.photo,
         memo: result.data.memo,
-        calendarId: 1,
       },
       select: {
         id: true,
@@ -80,3 +77,4 @@ export async function getUploadURL() {
 
   return data;
 }
+
