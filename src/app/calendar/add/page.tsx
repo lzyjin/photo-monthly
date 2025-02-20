@@ -3,75 +3,61 @@
 import NavigationBar from "@/components/navigation-bar";
 import Form from "next/form";
 import Button from "@/components/button";
-import {CalendarDaysIcon, PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
+import {PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
 import React, {ChangeEvent, useActionState, useEffect, useState} from "react";
 import {addPost, getPostedDates, getUploadURL} from "@/app/calendar/add/actions";
 import Image from "next/image";
-import {getCalendars} from "@/app/(tab)/calendar/[calendarId]/actions";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {DatepickerInput} from "@/components/datepicker-input";
-import {useSearchParams} from "next/navigation";
+import {notFound, useSearchParams} from "next/navigation";
+import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
 
 export default function AddPostPage() {
+  const searchParams = useSearchParams();
+
+  if (!searchParams.get("year") || !searchParams.get("month") || !searchParams.get("date")) {
+    return notFound();
+  }
+
+  const year = Number(searchParams.get("year"));
+  const month = Number(searchParams.get("month"));
+  const date = Number(searchParams.get("date"));
+
+
   const [photoPath, setPhotoPath] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [imageId, setImageId] = useState("");
-  const [calendars, setCalendars] = useState<{
-    id: number,
-    name: string,
-    isDefault: boolean,
-  }[]>();
   const [startDate, setStartDate] = useState<Date | null>(new Date());
 
-  const searchParams = useSearchParams();
-  const calendarId = Number(searchParams.get("calendarId"));
+  const today = new Date();
+  const aYearAgoToday = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
 
-  const [postedDates, setPostedDates] = useState<string[]>([]);
-  const [inputDateWarning, setInputDateWarning] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const allCalendars = await getCalendars();
-
-      if (allCalendars) {
-        setCalendars(allCalendars);
-      }
-    })();
-  }, []);
-
-  // TODO: 고쳐야함
-  useEffect(() => {
-    (async () => {
-      if (calendarId) {
-        const dates = await getPostedDates(calendarId);
-        setPostedDates(dates);
-      }
-    })();
-  }, [calendarId]);
+  const [postedDates, setPostedDates] = useState<Date[]>([]);
 
   useEffect(() => {
-    const year = searchParams.get("year");
-    const month = searchParams.get("month");
-    const date = searchParams.get("date");
-
     if (year && month && date) {
-      setStartDate(new Date(Number(year), Number(month), Number(date)));
+      setStartDate(new Date(year, month, date));
     }
   }, [searchParams]);
 
-  const handleDateChange = (date: Date | null) => {
+  const handleCalendarOpen = async () => {
+    const targetDate = new Date(year, month, date);
+    const startDate = getMonthStartDate(targetDate);
+    const endDate = getMonthEndDate(targetDate);
+    const dates = await getPostedDates(startDate, endDate);
+    setPostedDates(dates);
+  };
+
+  const handleMonthChange = async (date: Date | null) => {
     if (!date) {
       return;
     }
 
-    const dateString = date.toISOString().split("T")[0];
-
-    if (postedDates.includes(dateString)) {
-      setInputDateWarning("선택한 날짜는 이미 사진이 등록되어 있습니다. 다른 날짜를 선택하세요.");
-    }
-
-    setStartDate(date);
+    const startDate = getMonthStartDate(date);
+    const endDate = getMonthEndDate(date);
+    const dates = await getPostedDates(startDate, endDate);
+    setPostedDates(dates);
   };
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -131,40 +117,34 @@ export default function AddPostPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col justify-center items-center">
-      <NavigationBar goBackUrl={`/calendar/${calendarId}`} pageTitle="기록 추가"/>
+      <NavigationBar goBackUrl="/calendar" pageTitle="기록 추가"/>
 
       <div className="p-5 pt-10 flex-auto w-full">
         <Form action={action}>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <label htmlFor="calendarId" className="text-sm">캘린더 선택</label>
-              <select name="calendarId" id="calendarId" className="border border-foreground block w-full p-3 text-sm">
-                {
-                  calendars && calendars.map((calendar) => (
-                    <option key={calendar.id} value={calendar.id}>{calendar.name}</option>
-                  ))
-                }
-              </select>
-            </div>
 
             <div className="w-full">
               <DatePicker
                 fixedHeight
-                minDate={new Date("2000-01-01")}
-                maxDate={new Date("2100-12-31")}
+                minDate={aYearAgoToday}
+                maxDate={new Date()}
                 selected={startDate}
-                onChange={(date) => handleDateChange(date)}
+                onCalendarOpen={handleCalendarOpen}
+                onMonthChange={handleMonthChange}
                 showMonthYearDropdown={true}
                 dateFormat="yyyy.MM.dd"
-                dayClassName={(date) => (
-                  postedDates.includes(date.toISOString().split("T")[0]) ?
-                  "bg-red-300  cursor-not-allowed" :
-                  ""
-                )}
+                excludeDates={postedDates}
+                dayClassName={(date) =>
+                  postedDates.some(d => d.getFullYear() === date.getFullYear() &&
+                    d.getMonth() === date.getMonth() &&
+                    d.getDate() === date.getDate())
+                    ? "bg-red-100 rounded-full"
+                    : ""
+                }
                 customInput={<DatepickerInput
                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
                   // errors={state?.fieldErrors.date}
-                  errors={[inputDateWarning]}
+                  // errors={[inputDateWarning]}
                   // defaultValue={state?.data.date}
                 />}
               />

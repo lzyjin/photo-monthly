@@ -1,14 +1,13 @@
 import NavigationBar from "@/components/navigation-bar";
 import Image from "next/image";
 import {notFound} from "next/navigation";
-import {getPost} from "@/app/calendar/[calendarId]/[postId]/actions";
+import {getPost} from "@/app/calendar/[postId]/actions";
 import {formatDate} from "@/lib/utils";
 
-export default async function PostPage({params}: {params: Promise<{calendarId: string; postId: string;}>}) {
-  const calendarId = (await params).calendarId;
+export default async function PostPage({params}: {params: Promise<{postId: string;}>}) {
   const postId = (await params).postId;
 
-  if (!calendarId || !postId) {
+  if (!postId) {
     return notFound();
   }
 

@@ -7,14 +7,15 @@ import 'swiper/css';
 import 'swiper/css/virtual';
 import {Virtual} from "swiper/modules";
 import {useEffect, useState} from "react";
-import {CalendarIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/solid";
-import {CalendarsProps, PostsProps} from "@/app/(tab)/calendar/[calendarId]/page";
+import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/solid";
+import {CalendarsProps, PostsProps} from "@/app/(tab)/calendar/page";
 import {notFound} from "next/navigation";
+import {getPosts} from "@/app/(tab)/calendar/actions";
+import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
 
 interface CalendarProps {
   calendars: CalendarsProps;
   posts: PostsProps;
-  calendarId: number;
 }
 
 function generateDates(startDate: Date, endDate: Date) {
@@ -48,54 +49,97 @@ function generateDates(startDate: Date, endDate: Date) {
   return dates;
 }
 
-export default function Calendar({calendars, posts, calendarId}: CalendarProps) {
-  const [activeCalendarId, setActiveCalendarId] = useState(calendarId);
+export default function Calendar({calendars, posts}: CalendarProps) {
   const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const [isThisMonth, setIsThisMonth] = useState(true);
+
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [dates, setDates] = useState<number[]>([]);
+  const [postList, setPostList] = useState(posts);
+
   const slides = Array.from({ length: 100 }).map((el, index) => `Slide ${index + 1}`);
+
+  useEffect(() => {
+    if (year === todayYear && month === todayMonth) {
+      setIsThisMonth(true);
+    } else {
+      setIsThisMonth(false);
+    }
+  }, [year, month]);
 
   if (!calendars) {
     notFound();
   }
 
   useEffect(() => {
-    const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
+    const targetDate = new Date(year, month, 1);
+    const startDate = getMonthStartDate(targetDate);
+    const endDate = getMonthEndDate(targetDate);
+
+    const datesValue = generateDates(startDate, endDate);
     setDates(datesValue);
   }, [year, month]);
 
-  const toPrevCal = () => {
+  const toPrevCal = async () => {
     if (month !== 0) {
       setMonth(month - 1);
     } else {
       setMonth(11);
       setYear(year - 1);
     }
+    // TODO: setMonth 하자마자 바로 접근해도 이전 값을 참조함 수정해야함!!!!!!!!
+    console.log("현재 month: ", month);
 
-    const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
+    const targetDate = new Date(year, month, 1);
+    const startDate = getMonthStartDate(targetDate);
+    const endDate = getMonthEndDate(targetDate);
+
+    const datesValue = generateDates(startDate, endDate);
     setDates(datesValue);
+
+    const posts = await getPosts(startDate, endDate);
+    console.log(posts)
+    setPostList(posts);
   };
 
-  const toNextCal = () => {
+  const toNextCal = async () => {
     if (month !== 11) {
+
       setMonth(month + 1);
     } else {
       setMonth(0);
       setYear(year + 1);
     }
+    // TODO: setMonth 하자마자 바로 접근해도 이전 값을 참조함 수정해야함!!!!!!!!
+    console.log("현재 month: ", month);
 
-    const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
+    const targetDate = new Date(year, month, 1);
+    const startDate = getMonthStartDate(targetDate);
+    const endDate = getMonthEndDate(targetDate);
+
+    const datesValue = generateDates(startDate, endDate);
     setDates(datesValue);
+
+    const posts = await getPosts(startDate, endDate);
+    console.log(posts)
+    setPostList(posts);
   };
 
-  const toTodayCal = () => {
-    const todayYear = today.getFullYear();
-    const todayMonth = today.getMonth();
-    const datesValue = generateDates(new Date(todayYear, todayMonth, 1), new Date(todayYear, todayMonth + 1, 1));
+  const toTodayCal = async () => {
     setYear(todayYear);
     setMonth(todayMonth);
+
+    const startDate = getMonthStartDate(today);
+    const endDate = getMonthEndDate(today);
+    const datesValue = generateDates(startDate, endDate);
+
     setDates(datesValue);
+
+    const posts = await getPosts(startDate, endDate);
+    setPostList(posts);
   };
 
   const changeMonth = (swiper: any) => {
@@ -123,30 +167,22 @@ export default function Calendar({calendars, posts, calendarId}: CalendarProps) 
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {/*<div className="relative">*/}
-          {/*  <button>*/}
-          {/*    <CalendarIcon className="size-4"/>*/}
-          {/*  </button>*/}
-          {/*  <ul className="absolute right-0 top-[100%] z-10 w-20 bg-white border border-foreground">*/}
-          {/*    {*/}
-          {/*      calendars && calendars.map((calendar, i) => (*/}
-          {/*        <li key={calendar.id}*/}
-          {/*          className={activeCalendarId === calendar.id ? "bg-foreground text-white" : ""}>*/}
-          {/*          {calendar.name}*/}
-          {/*        </li>*/}
-          {/*      ))*/}
-          {/*    }*/}
-          {/*  </ul>*/}
-          {/*</div>*/}
-          <button
-            className="font-semibold text-sm transition-colors py-1 px-1.5 rounded-full hover:bg-foreground hover:text-white"
-            onClick={toTodayCal}>오늘
-          </button>
+          {
+            isThisMonth ?
+            null :
+            <button
+              className="font-semibold text-sm transition-colors py-1 px-1.5 rounded-full
+              hover:bg-foreground hover:text-white"
+              onClick={toTodayCal}>오늘
+            </button>
+          }
         </div>
       </div>
 
       <div className="w-full h-full">
-        <div className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground *:flex *:justify-center *:items-center text-sm">
+        <div
+          className="absolute left-0 top-10 bg-white w-full h-10 grid grid-cols-7 text-center border-b border-foreground
+          *:flex *:justify-center *:items-center text-sm">
           {
             ["월", "화", "수", "목", "금", "토", "일",].map((v, i) => (
               <CalendarDay day={v} key={i}/>
@@ -165,7 +201,13 @@ export default function Calendar({calendars, posts, calendarId}: CalendarProps) 
             {
               slides.map((slideContent, index) => (
                 <SwiperSlide key={slideContent} virtualIndex={index}>
-                  <CalendarMonth dates={dates} year={year} month={month} posts={posts} activeCalendarId={activeCalendarId} />
+                  <CalendarMonth
+                    dates={dates}
+                    year={year}
+                    month={month}
+                    posts={postList}
+                    isThisMonth={isThisMonth}
+                  />
                 </SwiperSlide>
               ))
             }

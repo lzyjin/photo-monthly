@@ -1,7 +1,7 @@
 "use server";
 
 import {db} from "@/lib/db";
-import {getLoggedInUserId} from "@/lib/session";
+import {getDefaultCalendarId, getLoggedInUserId} from "@/lib/session";
 
 export async function getCalendars() {
   const loggedInUserId = await getLoggedInUserId();
@@ -24,13 +24,15 @@ export async function getCalendars() {
   return calendars;
 }
 
-export async function getPosts(calendarId: number, year: number, month: number) {
+export async function getPosts(searchStartDate: Date, searchEndDate: Date) {
+  const calendarId = await getDefaultCalendarId();
+
   const posts = await db.post.findMany({
     where: {
-      calendarId: calendarId,
+      calendarId,
       date: {
-        gte: new Date(year, month, 1),
-        lt: new Date(year, month + 1, 1),
+        gte: searchStartDate,
+        lt: searchEndDate,
       },
     },
   });

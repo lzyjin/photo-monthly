@@ -1,14 +1,16 @@
 import TabBar from "@/components/tab-bar";
 import Calendar from "@/components/calendar";
-import {getCalendars, getPosts} from "@/app/(tab)/calendar/[calendarId]/actions";
+import {getCalendars, getPosts} from "@/app/(tab)/calendar/actions";
 import {Prisma} from "@prisma/client";
 import {notFound} from "next/navigation";
+import {getDefaultCalendarId} from "@/lib/session";
+import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
 
 export type CalendarsProps = Prisma.PromiseReturnType<typeof getCalendars>;
 export type PostsProps = Prisma.PromiseReturnType<typeof getPosts>;
 
-export default async function CalendarPage({params}: {params: Promise<{calendarId: string}>}) {
-  const calendarId = Number((await params).calendarId);
+export default async function CalendarPage() {
+  const calendarId = await getDefaultCalendarId();
 
   if (!calendarId) {
     return notFound();
@@ -21,10 +23,9 @@ export default async function CalendarPage({params}: {params: Promise<{calendarI
   }
 
   const today = new Date();
-  const todayYear = today.getFullYear();
-  const todayMonth = today.getMonth();
-
-  const posts = await getPosts(calendarId, todayYear, todayMonth);
+  const startDate = getMonthStartDate(today);
+  const endDate = getMonthEndDate(today);
+  const posts = await getPosts(startDate, endDate);
 
   return (
     <div className="w-full h-full">

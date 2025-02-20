@@ -4,6 +4,7 @@ import {z} from "zod";
 import {POST_MEMO_MAX_LENGTH} from "@/lib/constants";
 import {db} from "@/lib/db";
 import {redirect} from "next/navigation";
+import {getDefaultCalendarId} from "@/lib/session";
 
 async function checkPostExists(date: Date, calendarId: number) {
   const post = await db.post.findMany({
@@ -20,9 +21,6 @@ async function checkPostExists(date: Date, calendarId: number) {
 }
 
 const formSchema = z.object({
-  calendarId: z
-    .coerce
-    .number(),
   date: z
     .coerce
     .date(),
@@ -82,9 +80,15 @@ export async function addPost(prevState: unknown, formData: FormData) {
     };
   } else {
     // console.log("등록 성공")
+    const calendarId = await getDefaultCalendarId();
+
+    if (!calendarId) {
+      return;
+    }
+
     const post = await db.post.create({
       data: {
-        calendarId: result.data.calendarId,
+        calendarId: calendarId,
         date: result.data.date,
         photo: result.data.photo,
         memo: result.data.memo,
@@ -94,7 +98,7 @@ export async function addPost(prevState: unknown, formData: FormData) {
       }
     });
 
-    redirect(`/calendar/${result.data.calendarId}/${post.id}`);
+    redirect(`/calendar/${post.id}`);
   }
 
 }
@@ -112,20 +116,21 @@ export async function getUploadURL() {
   return data;
 }
 
-export async function getPostedDates(calendarId: number) {
+export async function getPostedDates(searchStartDate: Date, searchEndDate: Date) {
+  const calendarId = await getDefaultCalendarId();
+
   const posts = await db.post.findMany({
     where: {
       calendarId,
+      date: {
+        gte: searchStartDate,
+        lt: searchEndDate,
+      },
     },
     select: {
-      date: true
+      date: true,
     },
   });
 
-  console.log("서버액션 getPostedDates")
-  console.log(posts);
-
-  return posts.map(
-    (post) => post.date.toISOString().split("T")[0])
-    ; // 날짜 문자열 배열로 변환
+  return posts.map(v => v.date);
 }

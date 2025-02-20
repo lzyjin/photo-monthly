@@ -16,13 +16,14 @@ interface CalendarDateProps {
     updatedAt: Date;
     calendarId: number;
   }
-  activeCalendarId: number;
 }
 
-export default function CalendarDate({date, year, month, isThisMonth, post, activeCalendarId}: CalendarDateProps) {
+export default function CalendarDate({date, year, month, isThisMonth, post}: CalendarDateProps) {
   const today = new Date();
+
   const [isPostDateShown, setIsPostDateShown] = useState(false);
   const [isToday, setIsToday] = useState(false);
+  const [isFuture, setIsFuture] = useState(false);
 
   useEffect(() => {
     if (post && (post.date.getFullYear() === year &&
@@ -40,6 +41,14 @@ export default function CalendarDate({date, year, month, isThisMonth, post, acti
     } else {
       setIsToday(false);
     }
+
+    const showDay = new Date(year, month, date);
+    if (Number(today) - Number(showDay) < 0) {
+      setIsFuture(true);
+    } else {
+      setIsFuture(false);
+    }
+
   }, [year, month, date, isThisMonth]);
 
   const onDateClick = () => {
@@ -48,34 +57,45 @@ export default function CalendarDate({date, year, month, isThisMonth, post, acti
 
     if (post) {
       // post가 있으면 상세페이지로 이동 "/calendar/1"
-      redirect(`/calendar/${activeCalendarId}/${post.id}`);
+      redirect(`/calendar/${post.id}`);
     } else {
       // post가 없으면 등록페이지로 이동 "/calendar/add"
       // 클릭한 날짜(년, 월, 일), 캘린더아이디 필요
-      redirect(`/calendar/add?year=${year}&month=${month}&date=${date}&calendarId=${activeCalendarId}`);
+      redirect(`/calendar/add?year=${year}&month=${month}&date=${date}`);
     }
   };
 
   return (
-    <div className="h-28 border-b border-foreground cursor-pointer" onClick={onDateClick}>
+    <div className="h-28 border-b border-foreground">
       {
         date !== 0 ?
-        <div className="relative w-full h-full overflow-hidden">
-          {
-            isPostDateShown && (
-             <Image src={`${post?.photo}/smaller`} alt={post?.date.toLocaleDateString() + "의 사진"} fill className="object-cover" />
-            )
-          }
-          {
-            isToday ?
-            <div className="relative w-full">
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 size-5 rounded-full bg-foreground" />
-              <span className="text-white relative">{date}</span>
+          (
+            isFuture ?
+            <div>
+              <span className="opacity-40">{date}</span>
             </div> :
-            <span className="relative">{date}</span>
-          }
-        </div> :
-        <div></div>
+            <div className="relative w-full h-full overflow-hidden cursor-pointer" onClick={onDateClick}>
+              {
+                isPostDateShown && (
+                  <Image
+                    src={`${post?.photo}/smaller`}
+                    alt={post?.date.toLocaleDateString() + "의 사진"}
+                    fill
+                    className="object-cover"
+                  />
+                )
+              }
+              {
+                isToday ?
+                  <div className="relative w-full">
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 size-5 rounded-full bg-foreground"/>
+                    <span className="text-white relative">{date}</span>
+                  </div> :
+                  <span className="relative">{date}</span>
+              }
+            </div>
+          ) :
+          <div className="cursor-none pointer-events-none"></div>
       }
     </div>
   );

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import {ArrowLeftIcon} from "@heroicons/react/24/solid";
+import {ArrowLeftIcon, PencilIcon, TrashIcon} from "@heroicons/react/24/solid";
+import {useParams, usePathname} from "next/navigation";
 
 interface NavigationBarProps {
   goBackUrl: string;
@@ -7,12 +10,28 @@ interface NavigationBarProps {
 }
 
 export default function NavigationBar({goBackUrl, pageTitle}: NavigationBarProps) {
+  const pathname = usePathname();
+  const params = useParams();
+  console.log(params)
+
   return (
     <div className="sticky z-10 left-0 top-0 bg-white w-full h-[49px] flex justify-center items-center py-3 px-5 border-b border-foreground flex-shrink-0">
       <Link href={goBackUrl} className="absolute left-5 top-auto bottom-auto">
-        <ArrowLeftIcon className="size-5" />
+        <ArrowLeftIcon className="size-4" />
       </Link>
       <h1 className="font-bold">{pageTitle}</h1>
+      {
+        pathname === `/calendar/${params.postId}` ?
+        <div className="absolute right-5 top-auto bottom-auto flex items-center gap-5">
+          <Link href={`/calendar/edit/${params.postId}`}>
+            <PencilIcon className="size-4"/>
+          </Link>
+          <Link href={`/calendar/delete/${params.postId}`}>
+            <TrashIcon className="size-4"/>
+          </Link>
+        </div> :
+        null
+      }
     </div>
   );
 }

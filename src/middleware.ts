@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {getDefaultCalendarId, getLoggedInUserId} from "@/lib/session";
+import {getLoggedInUserId} from "@/lib/session";
 
 interface PublicUrlsType {
   [key: string]: boolean;
@@ -17,11 +17,10 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublicUrls = publicUrls[pathname];
   const loggedInUserId = await getLoggedInUserId();
-  const defaultCalendarId = await getDefaultCalendarId();
 
   // 로그인  -> public url 접근 불가
   if (loggedInUserId && isPublicUrls) {
-    return NextResponse.redirect(new URL(`/calendar/${defaultCalendarId}`, request.url));
+    return NextResponse.redirect(new URL("/calendar", request.url));
   }
 
   // 로그인 x -> public url 외 접근 불가

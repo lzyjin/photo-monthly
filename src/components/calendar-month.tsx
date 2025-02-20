@@ -1,31 +1,15 @@
 import CalendarDate from "@/components/calendar-date";
-import {useEffect, useState} from "react";
-import {PostsProps} from "@/app/(tab)/calendar/[calendarId]/page";
+import {PostsProps} from "@/app/(tab)/calendar/page";
 
 interface CalendarMonthProps {
   dates: number[];
   year: number;
   month: number;
   posts: PostsProps;
-  activeCalendarId: number;
+  isThisMonth: boolean;
 }
 
-export default function CalendarMonth({dates, year, month, posts, activeCalendarId}: CalendarMonthProps) {
-  const [isThisMonth, setIsThisMonth] = useState(false);
-  const showingDate = new Date(year, month, 1);
-  const today = new Date();
-  const todayYear = today.getFullYear();
-  const todayMonth = today.getMonth();
-
-  useEffect(() => {
-    if (showingDate.getFullYear() === todayYear &&
-        showingDate.getMonth() === todayMonth) {
-      setIsThisMonth(true);
-    } else {
-      setIsThisMonth(false);
-    }
-  }, [showingDate, todayYear, todayMonth]);
-
+export default function CalendarMonth({dates, year, month, posts, isThisMonth}: CalendarMonthProps) {
   return (
     <div className="grid grid-cols-7 text-center">
       {
@@ -37,7 +21,6 @@ export default function CalendarMonth({dates, year, month, posts, activeCalendar
             post={posts.find(p => p.date.getDate() === date)}
             month={month}
             year={year}
-            activeCalendarId={activeCalendarId}
           />
         ))
       }
