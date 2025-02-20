@@ -2,14 +2,16 @@
 
 import NavigationBar from "@/components/navigation-bar";
 import Form from "next/form";
-import Input from "@/components/input";
 import Button from "@/components/button";
-import {PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
+import {CalendarDaysIcon, PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
 import React, {ChangeEvent, useActionState, useEffect, useState} from "react";
-import {addPost, getUploadURL} from "@/app/calendar/add/actions";
+import {addPost, getPostedDates, getUploadURL} from "@/app/calendar/add/actions";
 import Image from "next/image";
-import {getCalendars} from "@/app/(tab)/calendar/actions";
-import {notFound} from "next/navigation";
+import {getCalendars} from "@/app/(tab)/calendar/[calendarId]/actions";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {DatepickerInput} from "@/components/datepicker-input";
+import {useSearchParams} from "next/navigation";
 
 export default function AddPostPage() {
   const [photoPath, setPhotoPath] = useState("");
@@ -20,17 +22,57 @@ export default function AddPostPage() {
     name: string,
     isDefault: boolean,
   }[]>();
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+
+  const searchParams = useSearchParams();
+  const calendarId = Number(searchParams.get("calendarId"));
+
+  const [postedDates, setPostedDates] = useState<string[]>([]);
+  const [inputDateWarning, setInputDateWarning] = useState("");
 
   useEffect(() => {
     (async () => {
       const allCalendars = await getCalendars();
-      console.log(allCalendars);
 
       if (allCalendars) {
         setCalendars(allCalendars);
       }
     })();
   }, []);
+
+  // TODO: 고쳐야함
+  useEffect(() => {
+    (async () => {
+      if (calendarId) {
+        const dates = await getPostedDates(calendarId);
+        setPostedDates(dates);
+      }
+    })();
+  }, [calendarId]);
+
+  useEffect(() => {
+    const year = searchParams.get("year");
+    const month = searchParams.get("month");
+    const date = searchParams.get("date");
+
+    if (year && month && date) {
+      setStartDate(new Date(Number(year), Number(month), Number(date)));
+    }
+  }, [searchParams]);
+
+  const handleDateChange = (date: Date | null) => {
+    if (!date) {
+      return;
+    }
+
+    const dateString = date.toISOString().split("T")[0];
+
+    if (postedDates.includes(dateString)) {
+      setInputDateWarning("선택한 날짜는 이미 사진이 등록되어 있습니다. 다른 날짜를 선택하세요.");
+    }
+
+    setStartDate(date);
+  };
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -56,14 +98,15 @@ export default function AddPostPage() {
 
   const interceptAction = async (prevState: unknown, formData: FormData) => {
     const file = formData.get("photo");
+    console.log(file)
 
     if (!file) {
       return;
     }
 
-    if (file instanceof File && file.size === 0) {
-      return addPost(prevState, formData);
-    }
+    // if (file instanceof File && file.size === 0) {
+    //   return addPost(prevState, formData);
+    // }
 
     const cloudflareForm = new FormData();
     cloudflareForm.set("file", file);
@@ -79,6 +122,7 @@ export default function AddPostPage() {
 
     const photoUrl = `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
     formData.set("photo", photoUrl);
+    setPhotoPath(`${photoUrl}/public`);
 
     return addPost(prevState, formData);
   };
@@ -87,7 +131,7 @@ export default function AddPostPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col justify-center items-center">
-      <NavigationBar goBackUrl="/calendar" pageTitle="기록 추가"/>
+      <NavigationBar goBackUrl={`/calendar/${calendarId}`} pageTitle="기록 추가"/>
 
       <div className="p-5 pt-10 flex-auto w-full">
         <Form action={action}>
@@ -102,15 +146,29 @@ export default function AddPostPage() {
                 }
               </select>
             </div>
-            <Input
-              label="날짜"
-              id="date"
-              name="date"
-              type="date"
-              required={true}
-              errors={state?.fieldErrors.date}
-              defaultValue={state?.data.date}
-            />
+
+            <div className="w-full">
+              <DatePicker
+                fixedHeight
+                minDate={new Date("2000-01-01")}
+                maxDate={new Date("2100-12-31")}
+                selected={startDate}
+                onChange={(date) => handleDateChange(date)}
+                showMonthYearDropdown={true}
+                dateFormat="yyyy.MM.dd"
+                dayClassName={(date) => (
+                  postedDates.includes(date.toISOString().split("T")[0]) ?
+                  "bg-red-300  cursor-not-allowed" :
+                  ""
+                )}
+                customInput={<DatepickerInput
+                  value={startDate ? startDate.toISOString().split("T")[0] : ""}
+                  // errors={state?.fieldErrors.date}
+                  errors={[inputDateWarning]}
+                  // defaultValue={state?.data.date}
+                />}
+              />
+            </div>
 
             <label
               className={`relative w-full aspect-square border border-foreground cursor-pointer
@@ -121,6 +179,8 @@ export default function AddPostPage() {
                 name="photo"
                 className="absolute left-0 top-0 opacity-0 pointer-events-none"
                 onChange={onFileChange}
+                // defaultValue={state?.data.photo instanceof File ? undefined : state?.data.photo ?? ""}
+                defaultValue={state?.data.photo ?? ""}
                 accept="image/*"
               />
               {

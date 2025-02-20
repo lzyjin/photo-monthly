@@ -5,7 +5,7 @@ import {db} from "@/lib/db";
 import bcrypt from "bcrypt";
 import {redirect} from "next/navigation";
 import {PASSWORD_MIN_LENGTH} from "@/lib/constants";
-import {sessionLogin} from "@/lib/session";
+import {sessionLogin, sessionSetDefaultCalendar} from "@/lib/session";
 
 async function checkUserExists(email: string) {
   const user = await db.user.findUnique({
@@ -85,8 +85,9 @@ export async function login(prevState: unknown, formData: FormData) {
         },
       });
 
-      // redirect(`/calendar/${calendars[0]}`);
-      redirect(`/calendar`);
+      await sessionSetDefaultCalendar(calendars[0].id);
+
+      redirect(`/calendar/${calendars[0].id}`);
 
     } else {
       return {

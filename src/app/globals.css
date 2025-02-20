@@ -21,6 +21,7 @@
     margin: 0;
     padding: 0;
     font-weight: normal;
+    white-space: pre-wrap;
 }
 
 html,
@@ -40,6 +41,28 @@ select {
     outline: none;
 }
 
+input:not([type=color]),
+button,
+textarea,
+select {
+    border-radius: 0;
+}
+
+button,
+input[type=button],
+input[type=submit],
+input[type=reset] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
 .swiper,
 .swiper-slide {
     height: 100%;
@@ -47,6 +70,10 @@ select {
 
 textarea {
     resize: none;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
 }
 
 @layer components {

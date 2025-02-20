@@ -8,12 +8,13 @@ import 'swiper/css/virtual';
 import {Virtual} from "swiper/modules";
 import {useEffect, useState} from "react";
 import {CalendarIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/solid";
-import {CalendarsProps, PostsProps} from "@/app/(tab)/calendar/page";
+import {CalendarsProps, PostsProps} from "@/app/(tab)/calendar/[calendarId]/page";
 import {notFound} from "next/navigation";
 
 interface CalendarProps {
   calendars: CalendarsProps;
   posts: PostsProps;
+  calendarId: number;
 }
 
 function generateDates(startDate: Date, endDate: Date) {
@@ -47,8 +48,8 @@ function generateDates(startDate: Date, endDate: Date) {
   return dates;
 }
 
-export default function Calendar({calendars, posts}: CalendarProps) {
-  const [activeCalendarId, setActiveCalendarId] = useState<number>();
+export default function Calendar({calendars, posts, calendarId}: CalendarProps) {
+  const [activeCalendarId, setActiveCalendarId] = useState(calendarId);
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -58,14 +59,6 @@ export default function Calendar({calendars, posts}: CalendarProps) {
   if (!calendars) {
     notFound();
   }
-
-  useEffect(() => {
-    calendars.map((calendar, i) => {
-      if (calendar.isDefault) {
-        setActiveCalendarId(calendar.id);
-      }
-    })
-  }, [calendars]);
 
   useEffect(() => {
     const datesValue = generateDates(new Date(year, month, 1), new Date(year, month + 1, 1));
@@ -172,7 +165,7 @@ export default function Calendar({calendars, posts}: CalendarProps) {
             {
               slides.map((slideContent, index) => (
                 <SwiperSlide key={slideContent} virtualIndex={index}>
-                  <CalendarMonth dates={dates} year={year} month={month} posts={posts} />
+                  <CalendarMonth dates={dates} year={year} month={month} posts={posts} activeCalendarId={activeCalendarId} />
                 </SwiperSlide>
               ))
             }

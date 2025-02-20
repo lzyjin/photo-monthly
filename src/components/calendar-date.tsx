@@ -1,5 +1,6 @@
 import Image from "next/image";
 import {useEffect, useState} from "react";
+import {redirect} from "next/navigation";
 
 interface CalendarDateProps {
   date: number;
@@ -15,9 +16,10 @@ interface CalendarDateProps {
     updatedAt: Date;
     calendarId: number;
   }
+  activeCalendarId: number;
 }
 
-export default function CalendarDate({date, year, month, isThisMonth, post}: CalendarDateProps) {
+export default function CalendarDate({date, year, month, isThisMonth, post, activeCalendarId}: CalendarDateProps) {
   const today = new Date();
   const [isPostDateShown, setIsPostDateShown] = useState(false);
   const [isToday, setIsToday] = useState(false);
@@ -40,8 +42,22 @@ export default function CalendarDate({date, year, month, isThisMonth, post}: Cal
     }
   }, [year, month, date, isThisMonth]);
 
+  const onDateClick = () => {
+    console.log("달력 날짜 클릭!", year, month, date);
+    console.log("post: ", post)
+
+    if (post) {
+      // post가 있으면 상세페이지로 이동 "/calendar/1"
+      redirect(`/calendar/${activeCalendarId}/${post.id}`);
+    } else {
+      // post가 없으면 등록페이지로 이동 "/calendar/add"
+      // 클릭한 날짜(년, 월, 일), 캘린더아이디 필요
+      redirect(`/calendar/add?year=${year}&month=${month}&date=${date}&calendarId=${activeCalendarId}`);
+    }
+  };
+
   return (
-    <div className="h-28 border-b border-foreground">
+    <div className="h-28 border-b border-foreground cursor-pointer" onClick={onDateClick}>
       {
         date !== 0 ?
         <div className="relative w-full h-full overflow-hidden">
