@@ -1,7 +1,7 @@
 import NavigationBar from "@/components/navigation-bar";
 import Image from "next/image";
 import {notFound} from "next/navigation";
-import {getPost} from "@/app/calendar/[postId]/actions";
+import {getPost} from "@/app/calendar/actions";
 import {formatDate} from "@/lib/utils";
 
 export default async function PostPage({params}: {params: Promise<{postId: string;}>}) {
@@ -12,7 +12,6 @@ export default async function PostPage({params}: {params: Promise<{postId: strin
   }
 
   const post = await getPost(postId);
-  console.log(post);
 
   if (!post) {
     return notFound();
@@ -21,7 +20,7 @@ export default async function PostPage({params}: {params: Promise<{postId: strin
   return (
     <div>
       <div className="w-full h-full flex flex-col justify-center items-center">
-        <NavigationBar goBackUrl="/" />
+        <NavigationBar goBackUrl="/" postDate={post.date} />
         <div className="p-5 flex-auto w-full">
           <div className="flex flex-col gap-5">
             <p className="text-center font-semibold text-sm">{formatDate(post.date)}</p>

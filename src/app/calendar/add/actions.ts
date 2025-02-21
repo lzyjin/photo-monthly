@@ -6,20 +6,6 @@ import {db} from "@/lib/db";
 import {redirect} from "next/navigation";
 import {getDefaultCalendarId} from "@/lib/session";
 
-async function checkPostExists(date: Date, calendarId: number) {
-  const post = await db.post.findMany({
-    where: {
-      date,
-      calendarId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  return post;
-}
-
 const formSchema = z.object({
   date: z
     .coerce
@@ -33,44 +19,15 @@ const formSchema = z.object({
     .string()
     .max(POST_MEMO_MAX_LENGTH, `${POST_MEMO_MAX_LENGTH}자 이내로 입력해주세요.`),
   });
-  // .superRefine(async (val, ctx) => {
-  //   const post = await checkPostExists(val.date, val.calendarId);
-  //   console.log(post);
-  //
-  //   if (post) {
-  //     ctx.addIssue({
-  //       code: z.ZodIssueCode.custom,
-  //       path: ["date"],
-  //       message: "선택한 날짜는 이미 사진이 등록되어 있습니다. 다른 날짜를 선택하세요.",
-  //       fatal: true,
-  //     });
-  //
-  //     return z.NEVER;
-  //   }
-  // });
 
 export async function addPost(prevState: unknown, formData: FormData) {
   const data = {
-    calendarId: formData.get("calendarId"),
     date: formData.get("date") as string,
     photo: formData.get("photo") as string,
     memo: formData.get("memo") as string,
   };
-  console.log(data);
-
-  // if (data.photo instanceof File) {
-  //   return {
-  //     fieldErrors: {
-  //       date: [],
-  //       photo: "사진은 필수 항목입니다.",
-  //       memo: [],
-  //     },
-  //     data,
-  //   };
-  // }
 
   const result = await formSchema.safeParseAsync(data);
-  // console.log(result)
 
   if (!result.success) {
     console.log(result.error.flatten())
@@ -79,7 +36,7 @@ export async function addPost(prevState: unknown, formData: FormData) {
       data,
     };
   } else {
-    // console.log("등록 성공")
+    console.log("등록 성공")
     const calendarId = await getDefaultCalendarId();
 
     if (!calendarId) {
@@ -133,4 +90,41 @@ export async function getPostedDates(searchStartDate: Date, searchEndDate: Date)
   });
 
   return posts.map(v => v.date);
+}
+
+export async function updatePost(prevState: unknown, formData: FormData, id: string) {
+  const data = {
+    date: formData.get("date") as string,
+    photo: formData.get("photo") as string,
+    memo: formData.get("memo") as string,
+  };
+
+  const result = await formSchema.safeParseAsync(data);
+
+  if (!result.success) {
+    console.log(result.error.flatten())
+    return {
+      fieldErrors: result.error.flatten().fieldErrors,
+      data,
+    };
+  } else {
+    console.log("수정 성공")
+
+    const post = await db.post.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        date: result.data.date,
+        photo: result.data.photo,
+        memo: result.data.memo,
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    redirect(`/calendar/${post.id}`);
+  }
+
 }

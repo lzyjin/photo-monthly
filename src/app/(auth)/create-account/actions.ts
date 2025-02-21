@@ -5,7 +5,6 @@ import {NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_REGEX} from "@/lib/consta
 import {db} from "@/lib/db";
 import bcrypt from "bcrypt";
 import {redirect} from "next/navigation";
-import {getLoggedInUserId} from "@/lib/session";
 
 async function checkUserExists(email: string) {
   const user = await db.user.findUnique({

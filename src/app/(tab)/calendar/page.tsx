@@ -3,19 +3,12 @@ import Calendar from "@/components/calendar";
 import {getCalendars, getPosts} from "@/app/(tab)/calendar/actions";
 import {Prisma} from "@prisma/client";
 import {notFound} from "next/navigation";
-import {getDefaultCalendarId} from "@/lib/session";
 import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
 
 export type CalendarsProps = Prisma.PromiseReturnType<typeof getCalendars>;
 export type PostsProps = Prisma.PromiseReturnType<typeof getPosts>;
 
 export default async function CalendarPage() {
-  const calendarId = await getDefaultCalendarId();
-
-  if (!calendarId) {
-    return notFound();
-  }
-
   const calendars = await getCalendars();
 
   if (!calendars) {
@@ -29,7 +22,7 @@ export default async function CalendarPage() {
 
   return (
     <div className="w-full h-full">
-      <Calendar calendars={calendars} posts={posts} calendarId={calendarId} />
+      <Calendar calendars={calendars} posts={posts} />
       <TabBar />
     </div>
   );

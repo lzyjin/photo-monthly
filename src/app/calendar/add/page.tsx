@@ -5,13 +5,14 @@ import Form from "next/form";
 import Button from "@/components/button";
 import {PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
 import React, {ChangeEvent, useActionState, useEffect, useState} from "react";
-import {addPost, getPostedDates, getUploadURL} from "@/app/calendar/add/actions";
+import {addPost, getPostedDates, getUploadURL, updatePost} from "@/app/calendar/add/actions";
 import Image from "next/image";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {DatepickerInput} from "@/components/datepicker-input";
 import {notFound, useSearchParams} from "next/navigation";
 import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
+import {getPost, Post} from "@/app/calendar/actions";
 
 export default function AddPostPage() {
   const searchParams = useSearchParams();
@@ -24,22 +25,41 @@ export default function AddPostPage() {
   const month = Number(searchParams.get("month"));
   const date = Number(searchParams.get("date"));
 
-
   const [photoPath, setPhotoPath] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [imageId, setImageId] = useState("");
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
 
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
   const today = new Date();
   const aYearAgoToday = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-
   const [postedDates, setPostedDates] = useState<Date[]>([]);
+
+  const id = searchParams.get("id");
+  const [post, setPost] = useState<Post>();
 
   useEffect(() => {
     if (year && month && date) {
-      setStartDate(new Date(year, month, date));
+      setStartDate(new Date(year, month, date, 0, 0, 0));
     }
+
+    if (!id) {
+      return;
+    }
+
+    (async () => {
+      const postData = await getPost(id);
+      if (postData) {
+        setPost(postData);
+      }
+    })();
   }, [searchParams]);
+
+  useEffect(() => {
+    if (post) {
+      setPhotoPath(post.photo + "/public");
+
+    }
+  }, [post]);
 
   const handleCalendarOpen = async () => {
     const targetDate = new Date(year, month, date);
@@ -82,18 +102,7 @@ export default function AddPostPage() {
     setPhotoPath("");
   };
 
-  const interceptAction = async (prevState: unknown, formData: FormData) => {
-    const file = formData.get("photo");
-    console.log(file)
-
-    if (!file) {
-      return;
-    }
-
-    // if (file instanceof File && file.size === 0) {
-    //   return addPost(prevState, formData);
-    // }
-
+  const getCloudflareImageUrl = async (file: File) => {
     const cloudflareForm = new FormData();
     cloudflareForm.set("file", file);
 
@@ -106,18 +115,67 @@ export default function AddPostPage() {
       return;
     }
 
-    const photoUrl = `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
-    formData.set("photo", photoUrl);
-    setPhotoPath(`${photoUrl}/public`);
+    return `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
+  }
 
-    return addPost(prevState, formData);
+  const interceptAction = async (prevState: unknown, formData: FormData) => {
+    const file = formData.get("photo");
+
+    if (!file || !formData.get("date")) {
+      return;
+    }
+
+    if (id) {
+      // 수정모드
+
+      // 기존 이미지 유지
+      if (photoPath.includes(process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL!)) {
+        formData.set("photo", post!.photo);
+        return updatePost(prevState, formData, id);
+      }
+
+      // 파일이 없으면 에러 표시를 위해 없는 상태로 submit
+      if (file instanceof File && file.size === 0) {
+        return updatePost(prevState, formData, id);
+      }
+
+      // 새 파일이 있으면 업로드 후 변경
+      if (file instanceof File && file.size > 0) {
+        const photoUrl = await getCloudflareImageUrl(file);
+        if (photoUrl) {
+          formData.set("photo", photoUrl);
+          setPhotoPath(`${photoUrl}/public`);
+        }
+
+        return updatePost(prevState, formData, id);
+      }
+
+    } else {
+      // 등록 모드
+
+      // 파일이 없으면 에러 표시를 위해 없는 상태로 submit
+      if (file instanceof File && file.size === 0) {
+        return addPost(prevState, formData);
+      }
+
+      // 새 파일이 있으면 업로드 후 변경
+      if (file instanceof File && file.size > 0) {
+        const photoUrl = await getCloudflareImageUrl(file);
+        if (photoUrl) {
+          formData.set("photo", photoUrl);
+          setPhotoPath(`${photoUrl}/public`);
+        }
+
+        return addPost(prevState, formData);
+      }
+    }
   };
 
   const [state, action] = useActionState(interceptAction, null);
 
   return (
     <div className="relative w-full h-full flex flex-col justify-center items-center">
-      <NavigationBar goBackUrl="/calendar" pageTitle="기록 추가"/>
+      <NavigationBar goBackUrl={post ? `/calendar/${post.id}` : "/calendar"} pageTitle={post ? "기록 수정" : `기록 추가`} />
 
       <div className="p-5 pt-10 flex-auto w-full">
         <Form action={action}>
@@ -129,24 +187,18 @@ export default function AddPostPage() {
                 minDate={aYearAgoToday}
                 maxDate={new Date()}
                 selected={startDate}
+                onChange={(date) => setStartDate(date)}
                 onCalendarOpen={handleCalendarOpen}
                 onMonthChange={handleMonthChange}
                 showMonthYearDropdown={true}
                 dateFormat="yyyy.MM.dd"
                 excludeDates={postedDates}
-                dayClassName={(date) =>
-                  postedDates.some(d => d.getFullYear() === date.getFullYear() &&
-                    d.getMonth() === date.getMonth() &&
-                    d.getDate() === date.getDate())
-                    ? "bg-red-100 rounded-full"
-                    : ""
+                dayClassName={(date) => postedDates.some(d => d.getFullYear() === date.getFullYear() &&
+                  d.getMonth() === date.getMonth() && d.getDate() === date.getDate()) ?
+                  "bg-red-100 rounded-full" :
+                  ""
                 }
-                customInput={<DatepickerInput
-                  value={startDate ? startDate.toISOString().split("T")[0] : ""}
-                  // errors={state?.fieldErrors.date}
-                  // errors={[inputDateWarning]}
-                  // defaultValue={state?.data.date}
-                />}
+                customInput={<DatepickerInput value={startDate ? startDate.toISOString().split("T")[0] : ""} />}
               />
             </div>
 
@@ -159,7 +211,6 @@ export default function AddPostPage() {
                 name="photo"
                 className="absolute left-0 top-0 opacity-0 pointer-events-none"
                 onChange={onFileChange}
-                // defaultValue={state?.data.photo instanceof File ? undefined : state?.data.photo ?? ""}
                 defaultValue={state?.data.photo ?? ""}
                 accept="image/*"
               />
@@ -191,7 +242,7 @@ export default function AddPostPage() {
                   id="memo"
                   placeholder="사진과 함께 기억하고 싶은 메모를 적어보세요."
                   className="block w-full h-full outline-none border-none p-3 text-sm overflow-y-auto placeholder:text-foreground placeholder:opacity-50"
-                  defaultValue={state?.data.memo}
+                  defaultValue={post ? post.memo! : state?.data.memo}
                 ></textarea>
               </div>
               {
@@ -209,7 +260,7 @@ export default function AddPostPage() {
           </div>
 
           <div className="fixed max-w-screen-sm z-10 left-1/2 -translate-x-1/2 bottom-0 bg-white w-full p-5">
-            <Button text="등록하기"/>
+            <Button text={post ? "수정하기" : "등록하기"}/>
           </div>
         </Form>
       </div>

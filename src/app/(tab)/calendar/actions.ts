@@ -26,7 +26,6 @@ export async function getCalendars() {
 
 export async function getPosts(searchStartDate: Date, searchEndDate: Date) {
   const calendarId = await getDefaultCalendarId();
-
   const posts = await db.post.findMany({
     where: {
       calendarId,

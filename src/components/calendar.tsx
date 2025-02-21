@@ -55,8 +55,8 @@ export default function Calendar({calendars, posts}: CalendarProps) {
   const todayMonth = today.getMonth();
   const [isThisMonth, setIsThisMonth] = useState(true);
 
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  const [year, setYear] = useState(todayYear);
+  const [month, setMonth] = useState(todayMonth);
   const [dates, setDates] = useState<number[]>([]);
   const [postList, setPostList] = useState(posts);
 
@@ -68,78 +68,53 @@ export default function Calendar({calendars, posts}: CalendarProps) {
     } else {
       setIsThisMonth(false);
     }
+
+    // dates 생성, posts 불러오기
+    (async () => {
+      const targetDate = new Date(year, month, 1, 0, 0, 0);
+      const startDate = getMonthStartDate(targetDate);
+      const endDate = getMonthEndDate(targetDate);
+
+      const datesValue = generateDates(startDate, endDate);
+      setDates(datesValue);
+
+      const posts = await getPosts(startDate, endDate);
+      setPostList(posts);
+    })();
+
   }, [year, month]);
 
   if (!calendars) {
     notFound();
   }
 
-  useEffect(() => {
-    const targetDate = new Date(year, month, 1);
-    const startDate = getMonthStartDate(targetDate);
-    const endDate = getMonthEndDate(targetDate);
-
-    const datesValue = generateDates(startDate, endDate);
-    setDates(datesValue);
-  }, [year, month]);
-
-  const toPrevCal = async () => {
+  const toPrevCal = () => {
     if (month !== 0) {
-      setMonth(month - 1);
+      setMonth(month => month - 1);
     } else {
+      // 지금 1월일 때
       setMonth(11);
-      setYear(year - 1);
+      setYear(year => year - 1);
     }
-    // TODO: setMonth 하자마자 바로 접근해도 이전 값을 참조함 수정해야함!!!!!!!!
-    console.log("현재 month: ", month);
-
-    const targetDate = new Date(year, month, 1);
-    const startDate = getMonthStartDate(targetDate);
-    const endDate = getMonthEndDate(targetDate);
-
-    const datesValue = generateDates(startDate, endDate);
-    setDates(datesValue);
-
-    const posts = await getPosts(startDate, endDate);
-    console.log(posts)
-    setPostList(posts);
   };
 
-  const toNextCal = async () => {
+  const toNextCal = () => {
     if (month !== 11) {
-
-      setMonth(month + 1);
+      setMonth(month => month + 1);
     } else {
+      // 지금 12월일 때
       setMonth(0);
-      setYear(year + 1);
+      setYear(year => year + 1);
     }
-    // TODO: setMonth 하자마자 바로 접근해도 이전 값을 참조함 수정해야함!!!!!!!!
-    console.log("현재 month: ", month);
-
-    const targetDate = new Date(year, month, 1);
-    const startDate = getMonthStartDate(targetDate);
-    const endDate = getMonthEndDate(targetDate);
-
-    const datesValue = generateDates(startDate, endDate);
-    setDates(datesValue);
-
-    const posts = await getPosts(startDate, endDate);
-    console.log(posts)
-    setPostList(posts);
   };
 
-  const toTodayCal = async () => {
+  const toTodayCal = () => {
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+
     setYear(todayYear);
     setMonth(todayMonth);
-
-    const startDate = getMonthStartDate(today);
-    const endDate = getMonthEndDate(today);
-    const datesValue = generateDates(startDate, endDate);
-
-    setDates(datesValue);
-
-    const posts = await getPosts(startDate, endDate);
-    setPostList(posts);
   };
 
   const changeMonth = (swiper: any) => {

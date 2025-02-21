@@ -7,12 +7,12 @@ import {useParams, usePathname} from "next/navigation";
 interface NavigationBarProps {
   goBackUrl: string;
   pageTitle?: string;
+  postDate?: Date;
 }
 
-export default function NavigationBar({goBackUrl, pageTitle}: NavigationBarProps) {
+export default function NavigationBar({goBackUrl, pageTitle, postDate}: NavigationBarProps) {
   const pathname = usePathname();
   const params = useParams();
-  console.log(params)
 
   return (
     <div className="sticky z-10 left-0 top-0 bg-white w-full h-[49px] flex justify-center items-center py-3 px-5 border-b border-foreground flex-shrink-0">
@@ -23,7 +23,7 @@ export default function NavigationBar({goBackUrl, pageTitle}: NavigationBarProps
       {
         pathname === `/calendar/${params.postId}` ?
         <div className="absolute right-5 top-auto bottom-auto flex items-center gap-5">
-          <Link href={`/calendar/edit/${params.postId}`}>
+          <Link href={`/calendar/add?id=${params.postId}&year=${postDate?.getFullYear()}&month=${postDate?.getMonth()}&date=${postDate?.getDate()}`}>
             <PencilIcon className="size-4"/>
           </Link>
           <Link href={`/calendar/delete/${params.postId}`}>
