@@ -33,6 +33,7 @@ export async function getPosts(searchStartDate: Date, searchEndDate: Date) {
         gte: searchStartDate,
         lt: searchEndDate,
       },
+      isDeleted: false,
     },
   });
 

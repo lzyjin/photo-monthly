@@ -4,7 +4,7 @@ import NavigationBar from "@/components/navigation-bar";
 import Form from "next/form";
 import Button from "@/components/button";
 import {PhotoIcon, XCircleIcon} from "@heroicons/react/24/solid";
-import React, {ChangeEvent, useActionState, useEffect, useState} from "react";
+import React, {ChangeEvent, useActionState, useEffect, useMemo, useState} from "react";
 import {addPost, getPostedDates, getUploadURL, updatePost} from "@/app/calendar/add/actions";
 import Image from "next/image";
 import DatePicker from "react-datepicker";
@@ -17,7 +17,11 @@ import {getPost, Post} from "@/app/calendar/actions";
 export default function AddPostPage() {
   const searchParams = useSearchParams();
 
-  if (!searchParams.get("year") || !searchParams.get("month") || !searchParams.get("date")) {
+  const isValid = useMemo(() => {
+    return searchParams.get("year") && searchParams.get("month") && searchParams.get("date");
+  }, [searchParams]);
+
+  if (!isValid) {
     return notFound();
   }
 

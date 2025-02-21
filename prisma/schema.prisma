@@ -23,6 +23,7 @@ model Post {
   memo       String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
   Photo      Photo[]
   calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   calendarId Int
