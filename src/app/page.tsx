@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Home() {
   return (
@@ -15,14 +14,6 @@ export default function Home() {
          <Link href={`/login`} className="btn">로그인</Link>
          <Link href={`/create-account`} className="btn">회원가입</Link>
        </div>
-       <div className="w-full flex justify-center items-center text-center relative">
-         <div className="w-full h-[1px] bg-foreground absolute top-auto left-auto right-auto bottom-auto" />
-         <span className="relative bg-white px-3 text-sm">또는</span>
-       </div>
-       <Link href={`/google/start`} className="btn flex justify-center items-center gap-2">
-         <Image src="/icons/google-logo.png" alt="구글 로고" width={20} height={20} />
-         <span>Google로 계속하기</span>
-       </Link>
      </div>
    </div>
   );

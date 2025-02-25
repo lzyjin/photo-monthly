@@ -1,4 +1,3 @@
-import TabBar from "@/components/tab-bar";
 import Calendar from "@/components/calendar";
 import {getCalendars, getPosts} from "@/app/(tab)/calendar/actions";
 import {Prisma} from "@prisma/client";
@@ -23,7 +22,6 @@ export default async function CalendarPage() {
   return (
     <div className="w-full h-full">
       <Calendar calendars={calendars} posts={posts} />
-      <TabBar />
     </div>
   );
 }

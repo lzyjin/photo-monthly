@@ -4,7 +4,7 @@ import {jejuGothic, workSans} from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "Photo Monthly",
-  description: "진으로 채워가는 달력, 포토 먼슬리",
+  description: "사진으로 채워가는 달력, 포토 먼슬리",
 };
 
 export default function RootLayout({

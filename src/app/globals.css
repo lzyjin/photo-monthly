@@ -4,9 +4,26 @@
 
 :root {
   --background: #ffffff;
-  /*--foreground: #171717;*/
+    /*검정*/
+  /*--foreground: #131313;*/
+
+    /*빨강*/
   /*--foreground: #ff0000;*/
+
+    /*주황*/
+  /*--foreground: #ff6a00;*/
+
+    /*초록*/
   --foreground: #1fad00;
+
+    /*파랑*/
+  /*--foreground: #003eff;*/
+
+    /*보라*/
+    /*--foreground: #b700ff;*/
+
+    /*분홍*/
+    /*--foreground: #ff60cd;*/
 }
 
 @media (prefers-color-scheme: dark) {

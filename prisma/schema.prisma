@@ -41,19 +41,32 @@ model Calendar {
 }
 
 model Setting {
-  id          Int @id @default(autoincrement())
-  startOfWeek Int @default(1) // 1 = Monday, 7 = Sunday
+  id          Int    @id @default(autoincrement())
+  startOfWeek Int    @default(1) // 1 = Monday, 7 = Sunday
+  User        User[]
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  isDeleted Boolean    @default(false)
-  Calendar  Calendar[]
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  name          String
+  password      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isDeleted     Boolean     @default(false)
+  Calendar      Calendar[]
+  themeColor    ThemeColor? @relation(fields: [themeColorId], references: [id], onDelete: Cascade)
+  themeColorId  Int?
+  startOfWeekId Setting?    @relation(fields: [settingId], references: [id], onDelete: Cascade)
+  settingId     Int?
+}
+
+model ThemeColor {
+  id        Int      @id @default(autoincrement())
+  colorCode String
+  colorName String
+  createdAt DateTime @default(now())
+  User      User[]
 }
 
 // TypeScript에서 Enum 정의:

@@ -87,7 +87,7 @@ export async function login(prevState: unknown, formData: FormData) {
 
       await sessionSetDefaultCalendar(calendars[0].id);
 
-      redirect(`/calendar/${calendars[0].id}`);
+      redirect(`/calendar`);
 
     } else {
       return {

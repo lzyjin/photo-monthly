@@ -1,3 +1,5 @@
+import TabBar from "@/components/tab-bar";
+
 export default function TabLayout({
   children,
 }: Readonly<{
@@ -6,6 +8,7 @@ export default function TabLayout({
   return (
     <div className="relative w-full h-full">
       {children}
+      <TabBar />
     </div>
   );
 }

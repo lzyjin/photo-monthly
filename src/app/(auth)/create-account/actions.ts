@@ -73,6 +73,7 @@ export async function createAccount(prevState: unknown, formData: FormData) {
         name: result.data.name,
         email: result.data.email,
         password: hashedPassword,
+        themeColorId: 1,
       },
       select: {
         id: true,
@@ -80,7 +81,7 @@ export async function createAccount(prevState: unknown, formData: FormData) {
     });
 
     if (user) {
-      const calendar = await db.calendar.create({
+      await db.calendar.create({
         data: {
           userId: user.id,
           name: "기본 캘린더",

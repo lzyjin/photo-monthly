@@ -13,6 +13,7 @@ CREATE TABLE "Post" (
     "memo" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "calendarId" INTEGER NOT NULL,
     CONSTRAINT "Post_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "Calendar" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -20,9 +21,11 @@ CREATE TABLE "Post" (
 -- CreateTable
 CREATE TABLE "Calendar" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "userId" INTEGER NOT NULL,
+    "isDefault" BOOLEAN NOT NULL,
     CONSTRAINT "Calendar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -40,7 +43,17 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "isDeleted" BOOLEAN NOT NULL DEFAULT false
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "themeColorId" INTEGER,
+    CONSTRAINT "User_themeColorId_fkey" FOREIGN KEY ("themeColorId") REFERENCES "ThemeColor" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ThemeColor" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "colorCode" TEXT NOT NULL,
+    "colorName" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateIndex
