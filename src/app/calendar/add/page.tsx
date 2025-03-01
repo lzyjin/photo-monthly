@@ -181,7 +181,7 @@ export default function AddPostPage() {
     <div className="relative w-full h-full flex flex-col justify-center items-center">
       <NavigationBar goBackUrl={post ? `/calendar/${post.id}` : "/calendar"} pageTitle={post ? "기록 수정" : `기록 추가`} />
 
-      <div className="p-5 pt-10 flex-auto w-full">
+      <div className="px-5 pt-10 pb-[120px] flex-auto w-full">
         <Form action={action}>
           <div className="flex flex-col gap-4">
 
@@ -263,7 +263,7 @@ export default function AddPostPage() {
             </div>
           </div>
 
-          <div className="fixed max-w-screen-sm z-10 left-1/2 -translate-x-1/2 bottom-0 bg-white w-full p-5">
+          <div className="fixed max-w-screen-sm z-10 left-1/2 -translate-x-1/2 bottom-0 bg-white w-full p-5 border-foreground border-t sm:border-l sm:border-r">
             <Button text={post ? "수정하기" : "등록하기"}/>
           </div>
         </Form>

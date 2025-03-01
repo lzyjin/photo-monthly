@@ -20,7 +20,7 @@ export default async function CalendarPage() {
   const posts = await getPosts(startDate, endDate);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full">
       <Calendar calendars={calendars} posts={posts} />
     </div>
   );

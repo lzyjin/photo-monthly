@@ -9,8 +9,10 @@ export default function TabBar() {
   const today = new Date();
 
   return (
-    <div className="sticky z-10 left-0 bottom-0 bg-white w-[inherit] max-w-[inherit] border-t border-foreground flex-shrink-0 text-center
-    grid grid-cols-3 *:flex *:flex-col *:justify-center *:items-center *:gap-0.5 *:py-2.5">
+    <div className="fixed z-10 left-1/2 -translate-x-1/2 bottom-0 bg-white w-full max-w-screen-sm
+    border-foreground border-t flex-shrink-0 text-center grid grid-cols-3
+    sm:border-l sm:border-r
+    *:flex *:flex-col *:justify-center *:items-center *:gap-0.5 *:py-2.5">
       <Link href="/calendar" className={pathname === "/calendar" ? "" : `opacity-50`}>
         <CalendarDaysIcon className="size-5"/>
         <span className="text-xs">캘린더</span>

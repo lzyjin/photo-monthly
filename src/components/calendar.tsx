@@ -164,7 +164,7 @@ export default function Calendar({calendars, posts}: CalendarProps) {
             ))
           }
         </div>
-        <div className="pt-20 w-full h-full">
+        <div className="pt-20 pb-16 w-full h-full">
           <Swiper
             virtual
             modules={[Virtual]}
