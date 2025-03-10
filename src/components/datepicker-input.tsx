@@ -1,10 +1,5 @@
-import {CalendarDaysIcon, EyeIcon, EyeSlashIcon, XCircleIcon} from "@heroicons/react/24/solid";
-import React, {forwardRef, InputHTMLAttributes, useRef, useState} from "react";
-
-// interface InputProps {
-//   defaultValue?: string;
-//   errors?: string[];
-// }
+import {CalendarDaysIcon} from "@heroicons/react/24/solid";
+import React, {forwardRef} from "react";
 
 interface InputProps {
   errors?: string[];
@@ -12,7 +7,6 @@ interface InputProps {
   onClick?(e: React.MouseEvent<SVGSVGElement | HTMLInputElement>): void;
 }
 
-// export default function DatepickerInput({defaultValue, errors, onClick, ...props}: InputProps & InputHTMLAttributes<HTMLInputElement>) {
 export const DatepickerInput = forwardRef<HTMLInputElement, InputProps>(
   ({ value, onClick, errors }, ref) => {
     return (

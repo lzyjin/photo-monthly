@@ -14,16 +14,31 @@ import {notFound, useSearchParams} from "next/navigation";
 import {getMonthEndDate, getMonthStartDate} from "@/lib/utils";
 import {getPost, Post} from "@/app/calendar/actions";
 
+export interface FormFieldErrors {
+  photo?: string[];
+  memo?: string[];
+  date?: string[];
+  [key: string]: string[] | undefined;
+}
+
+export interface FormDataType {
+  photo?: string;
+  memo?: string;
+  date?: string;
+  [key: string]: string | undefined;
+}
+
+export interface FormState {
+  fieldErrors?: FormFieldErrors;
+  data?: FormDataType;
+}
+
 export default function AddPostPage() {
   const searchParams = useSearchParams();
 
   const isValid = useMemo(() => {
     return searchParams.get("year") && searchParams.get("month") && searchParams.get("date");
   }, [searchParams]);
-
-  if (!isValid) {
-    return notFound();
-  }
 
   const year = Number(searchParams.get("year"));
   const month = Number(searchParams.get("month"));
@@ -40,30 +55,6 @@ export default function AddPostPage() {
 
   const id = searchParams.get("id");
   const [post, setPost] = useState<Post>();
-
-  useEffect(() => {
-    if (year && month && date) {
-      setStartDate(new Date(year, month, date, 0, 0, 0));
-    }
-
-    if (!id) {
-      return;
-    }
-
-    (async () => {
-      const postData = await getPost(id);
-      if (postData) {
-        setPost(postData);
-      }
-    })();
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (post) {
-      setPhotoPath(post.photo + "/public");
-
-    }
-  }, [post]);
 
   const handleCalendarOpen = async () => {
     const targetDate = new Date(year, month, date);
@@ -122,11 +113,11 @@ export default function AddPostPage() {
     return `${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL}/${imageId}`;
   }
 
-  const interceptAction = async (prevState: unknown, formData: FormData) => {
+  const interceptAction = async (prevState: FormState | null, formData: FormData): Promise<FormState | null> => {
     const file = formData.get("photo");
 
     if (!file || !formData.get("date")) {
-      return;
+      return prevState; // ✅ 항상 값을 반환하도록 수정
     }
 
     if (id) {
@@ -134,48 +125,71 @@ export default function AddPostPage() {
 
       // 기존 이미지 유지
       if (photoPath.includes(process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_DELIVERY_URL!)) {
-        formData.set("photo", post!.photo);
-        return updatePost(prevState, formData, id);
-      }
-
-      // 파일이 없으면 에러 표시를 위해 없는 상태로 submit
-      if (file instanceof File && file.size === 0) {
-        return updatePost(prevState, formData, id);
+        formData.set("photo", post?.photo ?? "");
       }
 
       // 새 파일이 있으면 업로드 후 변경
       if (file instanceof File && file.size > 0) {
         const photoUrl = await getCloudflareImageUrl(file);
+
         if (photoUrl) {
           formData.set("photo", photoUrl);
           setPhotoPath(`${photoUrl}/public`);
         }
-
-        return updatePost(prevState, formData, id);
       }
+
+      return updatePost(prevState, formData, id);
 
     } else {
       // 등록 모드
 
-      // 파일이 없으면 에러 표시를 위해 없는 상태로 submit
-      if (file instanceof File && file.size === 0) {
-        return addPost(prevState, formData);
-      }
-
       // 새 파일이 있으면 업로드 후 변경
       if (file instanceof File && file.size > 0) {
         const photoUrl = await getCloudflareImageUrl(file);
+
         if (photoUrl) {
           formData.set("photo", photoUrl);
           setPhotoPath(`${photoUrl}/public`);
         }
-
-        return addPost(prevState, formData);
       }
+
+      return addPost(prevState, formData) as Promise<FormState | null>;
     }
   };
 
   const [state, action] = useActionState(interceptAction, null);
+
+  useEffect(() => {
+    if (!isValid) {
+      return;
+    }
+
+    if (year && month && date) {
+      setStartDate(new Date(year, month, date, 0, 0, 0));
+    }
+
+    if (id) {
+      (async () => {
+        const postData = await getPost(id);
+        if (postData) {
+          setPost(postData);
+        }
+      })();
+    }
+
+  }, [searchParams, isValid, id, year, month, date]);
+
+  useEffect(() => {
+    if (post) {
+      setPhotoPath(post.photo + "/public");
+
+    }
+  }, [post]);
+
+  // notfound를 return하는 코드는 useActionState 다음에 와야 함
+  if (!isValid) {
+    return notFound();
+  }
 
   return (
     <div className="relative w-full h-full flex flex-col justify-center items-center">
@@ -215,7 +229,7 @@ export default function AddPostPage() {
                 name="photo"
                 className="absolute left-0 top-0 opacity-0 pointer-events-none"
                 onChange={onFileChange}
-                defaultValue={state?.data.photo ?? ""}
+                defaultValue={state?.data?.photo ?? ""}
                 accept="image/*"
               />
               {
@@ -232,7 +246,7 @@ export default function AddPostPage() {
                   <>
                     <div className="flex flex-col justify-center items-center gap-2">
                       <PhotoIcon className="size-10"/>
-                      <span className="text-[#ff0000] text-xs">{state?.fieldErrors.photo}</span>
+                      <span className="text-[#ff0000] text-xs">{state?.fieldErrors?.photo}</span>
                     </div>
                   </>
               }
@@ -246,11 +260,11 @@ export default function AddPostPage() {
                   id="memo"
                   placeholder="사진과 함께 기억하고 싶은 메모를 적어보세요."
                   className="block w-full h-full outline-none border-none p-3 text-sm overflow-y-auto placeholder:text-foreground placeholder:opacity-50"
-                  defaultValue={post ? post.memo! : state?.data.memo}
+                  defaultValue={post ? post.memo! : state?.data?.memo}
                 ></textarea>
               </div>
               {
-                state?.fieldErrors.memo && (
+                state?.fieldErrors?.memo && (
                   <div>
                     {
                       state.fieldErrors.memo?.map((error) => (

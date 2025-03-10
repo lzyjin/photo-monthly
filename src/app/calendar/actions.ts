@@ -18,7 +18,7 @@ export async function getPost(postId: string) {
 export type Post = Prisma.PromiseReturnType<typeof getPost>;
 
 export async function deletePost(postId: string) {
-  const post = await db.post.update({
+  await db.post.update({
     where: {
       id: Number(postId),
     },

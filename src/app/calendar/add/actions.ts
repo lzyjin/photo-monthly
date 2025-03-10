@@ -5,6 +5,7 @@ import {POST_MEMO_MAX_LENGTH} from "@/lib/constants";
 import {db} from "@/lib/db";
 import {redirect} from "next/navigation";
 import {getDefaultCalendarId} from "@/lib/session";
+import {FormState} from "@/app/calendar/add/page";
 
 const formSchema = z.object({
   date: z
@@ -30,13 +31,15 @@ export async function addPost(prevState: unknown, formData: FormData) {
   const result = await formSchema.safeParseAsync(data);
 
   if (!result.success) {
-    console.log(result.error.flatten())
+    console.log(result.error.flatten());
+
     return {
       fieldErrors: result.error.flatten().fieldErrors,
       data,
     };
   } else {
-    console.log("등록 성공")
+    console.log("등록 성공");
+
     const calendarId = await getDefaultCalendarId();
 
     if (!calendarId) {
@@ -57,7 +60,6 @@ export async function addPost(prevState: unknown, formData: FormData) {
 
     redirect(`/calendar/${post.id}`);
   }
-
 }
 
 export async function getUploadURL() {
@@ -103,6 +105,7 @@ export async function updatePost(prevState: unknown, formData: FormData, id: str
 
   if (!result.success) {
     console.log(result.error.flatten())
+
     return {
       fieldErrors: result.error.flatten().fieldErrors,
       data,
@@ -128,3 +131,9 @@ export async function updatePost(prevState: unknown, formData: FormData, id: str
   }
 
 }
+
+
+// export async function handlePost(prevState: unknown, formData: FormData) {
+//   const id = formData.get("id") as string | null;
+//   return id ? updatePost(prevState, formData, id) : addPost(prevState, formData);
+// }
