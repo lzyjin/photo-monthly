@@ -5,7 +5,6 @@ import {POST_MEMO_MAX_LENGTH} from "@/lib/constants";
 import {db} from "@/lib/db";
 import {redirect} from "next/navigation";
 import {getDefaultCalendarId} from "@/lib/session";
-import {FormState} from "@/app/calendar/add/page";
 
 const formSchema = z.object({
   date: z
@@ -129,11 +128,4 @@ export async function updatePost(prevState: unknown, formData: FormData, id: str
 
     redirect(`/calendar/${post.id}`);
   }
-
 }
-
-
-// export async function handlePost(prevState: unknown, formData: FormData) {
-//   const id = formData.get("id") as string | null;
-//   return id ? updatePost(prevState, formData, id) : addPost(prevState, formData);
-// }

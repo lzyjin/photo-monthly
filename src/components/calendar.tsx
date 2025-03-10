@@ -3,6 +3,7 @@
 import CalendarDay from "@/components/calendar-day";
 import CalendarMonth from "@/components/calendar-month";
 import {Swiper, SwiperSlide} from "swiper/react";
+import { Swiper as SwiperType } from "swiper";
 import 'swiper/css';
 import 'swiper/css/virtual';
 import {Virtual} from "swiper/modules";
@@ -82,7 +83,7 @@ export default function Calendar({calendars, posts}: CalendarProps) {
       setPostList(posts);
     })();
 
-  }, [year, month]);
+  }, [year, month, todayYear, todayMonth]);
 
   if (!calendars) {
     notFound();
@@ -117,7 +118,7 @@ export default function Calendar({calendars, posts}: CalendarProps) {
     setMonth(todayMonth);
   };
 
-  const changeMonth = (swiper: any) => {
+  const changeMonth = (swiper: SwiperType) => {
     if (!swiper.swipeDirection) {
       return;
     }

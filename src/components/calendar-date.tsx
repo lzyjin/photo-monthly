@@ -49,7 +49,7 @@ export default function CalendarDate({date, year, month, isThisMonth, post}: Cal
       setIsFuture(false);
     }
 
-  }, [year, month, date, isThisMonth]);
+  }, [year, month, date, isThisMonth, today]);
 
   const onDateClick = () => {
     console.log("달력 날짜 클릭!", year, month, date);
