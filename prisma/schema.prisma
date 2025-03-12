@@ -55,19 +55,19 @@ model User {
   updatedAt     DateTime    @updatedAt
   isDeleted     Boolean     @default(false)
   Calendar      Calendar[]
-  themeColor    ThemeColor? @relation(fields: [themeColorId], references: [id], onDelete: Cascade)
-  themeColorId  Int?
+  // themeColor    ThemeColor? @relation(fields: [themeColorId], references: [id], onDelete: Cascade)
+  // themeColorId  Int?
   startOfWeekId Setting?    @relation(fields: [settingId], references: [id], onDelete: Cascade)
   settingId     Int?
 }
 
-model ThemeColor {
-  id        Int      @id @default(autoincrement())
-  colorCode String
-  colorName String
-  createdAt DateTime @default(now())
-  User      User[]
-}
+// model ThemeColor {
+//   id        Int      @id @default(autoincrement())
+//   colorCode String
+//   colorName String
+//   createdAt DateTime @default(now())
+//   User      User[]
+// }
 
 // TypeScript에서 Enum 정의:
 // export enum StartOfWeek {
