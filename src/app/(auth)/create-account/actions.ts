@@ -73,7 +73,7 @@ export async function createAccount(prevState: unknown, formData: FormData) {
         name: result.data.name,
         email: result.data.email,
         password: hashedPassword,
-        themeColorId: 1,
+        // themeColorId: 1,
       },
       select: {
         id: true,
