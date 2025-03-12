@@ -47,17 +47,17 @@ model Setting {
 }
 
 model User {
-  id            Int         @id @default(autoincrement())
-  email         String      @unique
+  id            Int        @id @default(autoincrement())
+  email         String     @unique
   name          String
   password      String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  isDeleted     Boolean     @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  isDeleted     Boolean    @default(false)
   Calendar      Calendar[]
   // themeColor    ThemeColor? @relation(fields: [themeColorId], references: [id], onDelete: Cascade)
   // themeColorId  Int?
-  startOfWeekId Setting?    @relation(fields: [settingId], references: [id], onDelete: Cascade)
+  startOfWeekId Setting?   @relation(fields: [settingId], references: [id], onDelete: Cascade)
   settingId     Int?
 }
 

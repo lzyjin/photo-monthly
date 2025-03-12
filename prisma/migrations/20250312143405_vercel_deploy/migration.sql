@@ -49,20 +49,9 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
-    "themeColorId" INTEGER,
     "settingId" INTEGER,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "ThemeColor" (
-    "id" SERIAL NOT NULL,
-    "colorCode" TEXT NOT NULL,
-    "colorName" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "ThemeColor_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -76,9 +65,6 @@ ALTER TABLE "Post" ADD CONSTRAINT "Post_calendarId_fkey" FOREIGN KEY ("calendarI
 
 -- AddForeignKey
 ALTER TABLE "Calendar" ADD CONSTRAINT "Calendar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_themeColorId_fkey" FOREIGN KEY ("themeColorId") REFERENCES "ThemeColor"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_settingId_fkey" FOREIGN KEY ("settingId") REFERENCES "Setting"("id") ON DELETE CASCADE ON UPDATE CASCADE;
