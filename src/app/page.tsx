@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-   <div className="w-full h-full flex flex-col justify-between items-center p-5">
+   <div className="w-full h-screen flex flex-col justify-between items-center p-5">
      <div className="text-center flex-1 flex justify-center items-center">
        <div>
          <h1 className="text-4xl font-bold mb-5">Photo Monthly</h1>
